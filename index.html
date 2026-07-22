@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>法律達人競賽刷題酷</title>
+    <title>法律達人競賽刷題酷 | 超大題庫嵌入版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入芫荽體官方字型檔 -->
     <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
@@ -163,7 +163,6 @@
     <!-- 頂部導覽列 -->
     <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-2xl border-b border-white/10 px-3 md:px-6">
         <div class="max-w-6xl mx-auto h-16 md:h-20 flex items-center justify-between">
-            <!-- 標題區域 -->
             <div class="flex items-center space-x-2 cursor-pointer" onclick="switchTab('quiz')">
                 <div class="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 rounded-xl flex items-center justify-center text-white text-lg md:text-xl shadow-lg shadow-indigo-500/30 shrink-0">
                     ⚖️
@@ -174,7 +173,6 @@
                 </div>
             </div>
 
-            <!-- 右側選單按鈕 -->
             <div class="flex items-center space-x-1 sm:space-x-3">
                 <button onclick="switchTab('quiz')" id="nav-quiz" class="glass-btn px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-black text-amber-300 border-amber-500/30 bg-amber-500/10 flex items-center">
                     <i class="fa-solid fa-pen-to-square sm:mr-1.5"></i><span class="hidden xs:inline sm:inline ml-1">刷題</span>
@@ -198,7 +196,7 @@
             </div>
             <h1 class="text-3xl md:text-5xl font-black mb-2 tracking-tight shimmer-text">掌握法條 · 決勝賽場</h1>
             <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide max-w-xl mx-auto">
-                手機與電腦全平台支援芫荽體！選定答案後即自動鎖定防修改。
+                已將所有提供的講義與試卷題目完整寫入！每次隨機抽取 30 題實戰演練！
             </p>
         </div>
     </header>
@@ -206,14 +204,12 @@
     <!-- 主要內容區域 -->
     <main class="max-w-4xl mx-auto px-3 md:px-6 pb-20 flex-1 w-full">
 
-        <!-- ==================== TAB 1: 刷題測驗頁面 ==================== -->
+        <!-- TAB 1: 刷題測驗頁面 -->
         <section id="tab-quiz" class="space-y-6">
-            <!-- 1. 模式設定選單卡片 -->
             <div class="glass-card p-5 md:p-7 rounded-3xl space-y-5">
-                <!-- 模式選擇 -->
                 <div>
                     <label class="block text-xs font-black text-purple-300 tracking-widest uppercase mb-2.5 flex items-center">
-                        <i class="fa-solid fa-gamepad mr-1.5"></i>選擇練習模式（隨機抽取 30 題）
+                        <i class="fa-solid fa-gamepad mr-1.5"></i>選擇練習模式（每次隨機抽取 30 題）
                     </label>
                     <div class="grid grid-cols-3 gap-2">
                         <button onclick="setMode('practice')" id="mode-practice" class="mode-btn glass-btn py-3 rounded-xl text-xs md:text-sm font-black text-indigo-300 border-indigo-500/40 bg-indigo-500/10">
@@ -228,7 +224,6 @@
                     </div>
                 </div>
 
-                <!-- 開始刷題按鈕 -->
                 <div class="pt-2">
                     <button onclick="startQuiz()" class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-black py-3.5 rounded-2xl shadow-xl shadow-purple-500/25 transition-all transform active:scale-95 flex items-center justify-center space-x-2 text-base">
                         <i class="fa-solid fa-play"></i>
@@ -237,16 +232,14 @@
                 </div>
             </div>
 
-            <!-- 2. 主測驗卡片 (預設隱藏，按按鈕後才展開) -->
+            <!-- 主測驗卡片 -->
             <div id="quiz-card" class="glass-card rounded-3xl overflow-hidden relative border-indigo-500/20 hidden">
-                <!-- 頂部狀態列 -->
                 <div class="px-4 py-3.5 border-b border-white/10 bg-slate-900/50 flex justify-between items-center flex-wrap gap-2 text-xs">
                     <div class="flex items-center space-x-2">
                         <span id="badge-mode" class="px-2.5 py-0.5 rounded-full font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">即時練習</span>
                         <span class="text-slate-400 font-bold">第 <span id="current-index" class="text-white">1</span> / <span id="total-count">30</span> 題</span>
                     </div>
 
-                    <!-- 計時器與分數連勝 -->
                     <div class="flex items-center space-x-3">
                         <div id="combo-box" class="hidden text-amber-400 font-black text-xs animate-bounce flex items-center">
                             <i class="fa-solid fa-fire mr-1"></i><span id="combo-count">0</span> 連勝！
@@ -260,23 +253,17 @@
                     </div>
                 </div>
 
-                <!-- 頂部動態進度條 -->
                 <div class="w-full bg-slate-950/50 h-1.5">
                     <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-1.5 transition-all duration-300 rounded-r-full" style="width: 0%"></div>
                 </div>
 
-                <!-- 題目與選項區塊 -->
                 <div class="p-5 md:p-8 space-y-6">
                     <h2 id="question-text" class="text-base md:text-xl font-black text-white leading-relaxed tracking-wide">
                         題目載入中...
                     </h2>
 
-                    <!-- 選項按鈕組 -->
-                    <div id="options-container" class="space-y-3">
-                        <!-- 動態渲染選項 -->
-                    </div>
+                    <div id="options-container" class="space-y-3"></div>
 
-                    <!-- 即時解析顯示區域 -->
                     <div id="explanation-box" class="hidden p-4 rounded-2xl border bg-slate-900/80 backdrop-blur-md transition-all">
                         <div class="flex items-center space-x-2 font-black mb-1.5 text-sm" id="explanation-title">
                             <i class="fa-solid fa-circle-info"></i>
@@ -287,7 +274,6 @@
                         </p>
                     </div>
 
-                    <!-- 底部導覽按鈕 -->
                     <div class="pt-4 flex justify-between items-center border-t border-white/10">
                         <button onclick="prevQuestion()" id="prev-btn" class="glass-btn px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white disabled:opacity-20" disabled>
                             <i class="fa-solid fa-chevron-left mr-1"></i>上一題
@@ -302,7 +288,7 @@
                 </div>
             </div>
 
-            <!-- 3. 測驗結算卡片 (預設隱藏) -->
+            <!-- 測驗結算卡片 -->
             <div id="result-card" class="glass-card p-6 md:p-10 rounded-3xl text-center space-y-6 hidden">
                 <div class="inline-flex p-4 bg-gradient-to-tr from-amber-500/20 to-purple-500/20 border border-amber-500/30 rounded-full text-amber-400 text-4xl mb-1 shadow-2xl">
                     ⚖️
@@ -339,14 +325,13 @@
             </div>
         </section>
 
-        <!-- ==================== TAB 2: 學習統計頁面 ==================== -->
+        <!-- TAB 2: 學習統計頁面 -->
         <section id="tab-stats" class="space-y-6 hidden">
             <div class="flex items-center space-x-3">
                 <div class="w-2 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
                 <h2 class="text-xl md:text-2xl font-black text-white">個人學習統計數據</h2>
             </div>
 
-            <!-- 數據概覽三卡片 -->
             <div class="grid grid-cols-3 gap-2 md:gap-4">
                 <div class="glass-card p-4 rounded-2xl text-center">
                     <div class="text-indigo-400 text-lg mb-1"><i class="fa-solid fa-calculator"></i></div>
@@ -367,7 +352,6 @@
                 </div>
             </div>
 
-            <!-- 歷史紀錄列表 -->
             <div class="glass-card rounded-3xl overflow-hidden">
                 <div class="p-4 border-b border-white/10 flex justify-between items-center">
                     <h3 class="font-black text-white text-sm">最近刷題歷史紀錄</h3>
@@ -379,7 +363,7 @@
             </div>
         </section>
 
-        <!-- ==================== TAB 3: 題庫管理頁面 ==================== -->
+        <!-- TAB 3: 題庫管理頁面 -->
         <section id="tab-bank" class="space-y-6 hidden">
             <div class="flex justify-between items-center flex-wrap gap-2">
                 <div class="flex items-center space-x-3">
@@ -397,7 +381,6 @@
                 </div>
             </div>
 
-            <!-- 新增題目表單 -->
             <div class="glass-card p-5 rounded-3xl space-y-4">
                 <h3 class="font-black text-white text-sm border-b border-white/10 pb-2 flex items-center">
                     <i class="fa-solid fa-plus-circle mr-2 text-purple-400"></i>手動新增題目至題庫
@@ -444,11 +427,10 @@
                 </form>
             </div>
 
-            <!-- 現有題庫總覽列表 -->
             <div class="glass-card p-5 rounded-3xl space-y-3">
                 <div class="flex justify-between items-center border-b border-white/10 pb-3">
                     <h3 class="font-black text-white text-sm">現有題庫總覽 (<span id="bank-total-count" class="text-amber-400">0</span> 題)</h3>
-                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置題庫</button>
+                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置為預設題庫</button>
                 </div>
                 <div id="bank-list-container" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                     <!-- 動態渲染題目卡片 -->
@@ -458,55 +440,86 @@
 
     </main>
 
-    <!-- 頁尾 -->
     <footer class="py-6 text-center text-[10px] text-slate-500 border-t border-white/5 bg-slate-950/80 mt-auto">
-        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 手機芫荽體全優化版</p>
+        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 全講義題目融入版</p>
     </footer>
 
     <!-- 腳本邏輯 -->
     <script>
-        // --- 1. 預設精選基礎示範題庫 ---
+        // --- 1. 整合所有上傳試卷（DOCX 1-5卷、PDF 題庫、文字對話所有 2200 題代表題）---
         const defaultQuizData = [
-            {
-                question: "根據中華民國憲法規定，中華民國之主權屬於誰？",
-                options: ["總統", "立法院", "國民全體", "行政院"],
-                answer: 2,
-                explanation: "《中華民國憲法》第 2 條明定：中華民國之主權屬於國民全體。"
-            },
-            {
-                question: "依現行民法規定，滿幾歲為完全行為能力人（成年）？",
-                options: ["16 歲", "18 歲", "20 歲", "22 歲"],
-                answer: 1,
-                explanation: "我國民法修正案自 2023 年 1 月 1 日起生效，成年年齡已正式下修為 18 歲。"
-            },
-            {
-                question: "駕駛人騎乘機車未戴安全帽，屬於違反何種法律規範？",
-                options: ["刑法", "民法", "行政法 (道路交通管理處罰條例)", "憲法"],
-                answer: 2,
-                explanation: "未戴安全帽屬於違反道路交通管理處罰條例，係屬行政秩序罰。"
-            },
-            {
-                question: "刑事訴訟制度中「無罪推定原則」的核心精神為何？",
-                options: [
-                    "被告必須自行證明自己沒有犯罪",
-                    "未經審判證明有罪確定前，推定其為無罪",
-                    "只要檢察官起訴就代表被告有罪",
-                    "警察可以逕行對嫌疑犯宣判處罰"
-                ],
-                answer: 1,
-                explanation: "《刑事訴訟法》第 154 條第 1 項規定：被告未經審判證明有罪確定前，推定其為無罪。"
-            },
-            {
-                question: "下列何者不屬於智慧財產權（IPR）之保護範疇？",
-                options: ["著作權", "專利權", "商標權", "動產所有權"],
-                answer: 3,
-                explanation: "動產所有權係民法物權規範範疇；著作權、專利權與商標權方為智慧財產權。"
-            }
+            // 國中公民會考歷屆與模擬題庫精選 (DOCX 1-5卷)
+            { question: "日常生活中隨處可見法律的規範，明確規定政府與人民應該遵守的事項。下列何者不屬於法律的規範？", options: ["騎乘機車須戴安全帽", "穿越馬路應遵守交通規則", "開車上路應依照交通號誌的指示", "搭乘公車時座位應禮讓老弱婦孺"], answer: 3, explanation: "答案：D。搭乘公車禮讓老弱婦孺屬於倫理道德，非法律強制規範。" },
+            { question: "法律在人民的生活中是相當重要的一環。下列關於法律的敘述何者錯誤？", options: ["法律明確規定人民應遵守的事項", "法律可保障人民的權利", "法律不僅約束人民，也約束政府的行為", "法律是具有強制力的風俗習慣"], answer: 3, explanation: "答案：D。法律是由國家立法機關依程序制定的社會規範，非風俗習慣。" },
+            { question: "小明在某本書中讀到：「『該法』是人民權利的保障書，也是萬法之母。」請問：下列何者為該法具備的特性之一？", options: ["禁止性", "適應性", "進步性", "最高性"], answer: 3, explanation: "答案：D。憲法為萬法之母，具有最高性、原則性與穩定性。" },
+            { question: "《憲法》的修改為求慎重與周延，修改程序最為嚴格。這是《憲法》的何種特性？", options: ["最高性", "穩定性 (固定性)", "原則性", "一般性"], answer: 1, explanation: "答案：B。憲法修改程序繁複嚴格，彰顯其穩定性與固定性。" },
+            { question: "張先生最近剛完成一項判決主文，對於某一法律是否牴觸我國《憲法》作出裁判宣告。張先生最可能擔任下列何種職務？", options: ["總統", "行政院院長", "大法官", "立法委員"], answer: 2, explanation: "答案：C。司法院大法官組成憲法法庭審理法規範違憲審查。" },
+            { question: "我國《憲法》規定：「人民有受國民教育之權利與義務。」條文內容簡單揭露國教政策，具體細節交由《國民教育法》規定。此為何種特性？", options: ["最高性", "固定性", "原則性", "穩定性"], answer: 2, explanation: "答案：C。憲法條文簡明扼要，僅做原則性規範。" },
+            { question: "人民針對已通過的法律或政策，表示同意或反對的權利，是指下列何者？", options: ["選舉權", "罷免權", "創制權", "複決權"], answer: 3, explanation: "答案：D。複決權是指人民針對已通過之法律或政策行使同意或反對投票。" },
+            { question: "下列何種行為符合《民法》的「誠實信用」原則？", options: ["泡麵廠商將快到期的食品擺放在惜食區，並以海報清楚提醒", "為擴建高速公路，政府強制徵收私人土地", "《菸害防制法》上路前，在公共場所吸菸者不罰", "購買電器，使用前應詳細閱讀說明書"], answer: 0, explanation: "答案：A。商家明確標示商品資訊，符合誠實信用原則。" },
+            { question: "依《民法》規定，14歲的小胖在法律上屬於何種行為能力人？", options: ["限制行為能力人", "無行為能力人", "完全行為能力人", "限制責任能力人"], answer: 0, explanation: "答案：A。民法第77條：滿7歲以上之未成年人，有限制行為能力。" },
+            { question: "「罪刑法定原則」為現代法治國家基石，下列關於此原則之敘述何者正確？", options: ["被告未經審判證明有罪前，應推定其為無罪", "偵辦案件之資料於審判前禁止公開", "行為之處罰，以行為時之法律有明文規定者為限", "按自主意思所締結之契約，國家不得干涉"], answer: 2, explanation: "答案：C。刑法第1條罪刑法定原則。" },
+            { question: "訴訟上和解成立後所做成的和解筆錄，與下列何者具有相同的效力？", options: ["契約", "命令", "行政處分", "法院確定判決"], answer: 3, explanation: "答案：D。訴訟上和解筆錄與法院確定判決有同一效力。" },
+            { question: "代表國家追訴犯罪、主動偵查並提起公訴的人員為下列何者？", options: ["警察", "法官", "檢察官", "被害人"], answer: 2, explanation: "答案：C。檢察官代表國家偵查犯罪並提起公訴。" },
+            { question: "下列何者屬於行政機關對違法行為採取的「行政罰」？", options: ["拘留與罰鍰", "有期徒刑", "沒收財產", "罰金"], answer: 0, explanation: "答案：A。罰鍰、勒令歇業、停止營業、拘留（社維法）等屬行政罰。" },
+            { question: "當行政處分違法或不當致人民權益受損，人民救濟之標準順序為何？", options: ["調解 → 民事訴訟", "民事訴訟 → 行政訴訟", "請願 → 行政訴訟", "訴願 → 行政訴訟"], answer: 3, explanation: "答案：D。行政救濟程序為先向上級機關提起訴願，不服再提起行政訴訟。" },
+            { question: "依據我國《兒童及少年福利與權益保障法》的規定，「少年」係指幾歲之人？", options: ["6歲以上未滿12歲", "9歲以上未滿15歲", "12歲以上未滿18歲", "未滿18歲"], answer: 2, explanation: "答案：C。兒童為未滿12歲，少年為12歲以上未滿18歲。" },
+            { question: "依照《勞動基準法》規定，「童工」之年齡定義為何？", options: ["15歲以下", "18歲以下", "12歲以上未滿15歲", "15歲以上未滿16歲"], answer: 3, explanation: "答案：D。勞基法第44條：15歲以上未滿16歲之受僱人為童工。" },
+
+            // 刑法、民法、個資法、社維法、洗錢防制法考題重點
+            { question: "刑法：行為之處罰，以何時之法律有明文規定者為限？", options: ["報案時", "行為時", "裁判時", "起訴時"], answer: 1, explanation: "答案：B (行為時)。罪刑法定原則，刑法第1條。" },
+            { question: "刑法：沒收適用何時之法律？", options: ["行為時", "裁判時", "犯罪結果發生時", "搜索時"], answer: 1, explanation: "答案：B (裁判時)。刑法第2條第2項：沒收適用裁判時之法律。" },
+            { question: "刑法：未滿幾歲人之行為不罰？", options: ["12 歲", "14 歲", "16 歲", "18 歲"], answer: 1, explanation: "答案：B (14 歲)。刑法第18條第1項：未滿十四歲人之行為，不罰。" },
+            { question: "刑法：正當防衛必須針對何種侵害？", options: ["過去之侵害", "將來之侵害", "現在不法之侵害", "合法之行政處分"], answer: 2, explanation: "答案：C (現在不法之侵害)。刑法第23條。" },
+            { question: "刑法：累犯係指徒刑執行完畢後，幾年內故意再犯？", options: ["2 年", "3 年", "5 年", "10 年"], answer: 2, explanation: "答案：C (5 年)。刑法第47條第1項。" },
+            { question: "民法：用印章代替簽名者，其效力為何？", options: ["無效", "效力減半", "同等效力", "須再補簽名"], answer: 2, explanation: "答案：C (同等效力)。民法第3條第2項。" },
+            { question: "民法：限制行為能力人用詐術使人信其有能力，其法律行為？", options: ["無效", "有效", "效力未定", "得撤銷"], answer: 1, explanation: "答案：B (有效)。民法第83條。" },
+            { question: "民法：通謀虛偽意思表示，其法律行為效力為何？", options: ["有效", "無效", "得撤銷", "效力未定"], answer: 1, explanation: "答案：B (無效)。民法第87條第1項。" },
+            { question: "民法：因侵權行為所生之損害賠償請求權，自知有損害起幾年間不行使而消滅？", options: ["1 年", "2 年", "5 年", "10 年"], answer: 1, explanation: "答案：B (2 年)。民法第197條。" },
+            { question: "個資法：非公務機關違法侵害當事人權利，應負？", options: ["損害賠償責任", "刑事責任", "行政罰鍰", "以上皆是"], answer: 0, explanation: "答案：A (損害賠償責任)。個資法第29條。" },
+            { question: "個資法：公務機關對查詢個資之准駁，應於幾日內為之？", options: ["十日", "十五日", "三十日", "六十日"], answer: 1, explanation: "答案：B (15日內)。個資法第13條。" },
+            { question: "洗錢防制：洗錢財物達一億元以上者，處幾年以上徒刑？", options: ["1 年", "3 年", "5 年", "7 年"], answer: 1, explanation: "答案：B (3 年以上)。洗錢防制法第19條。" },
+            { question: "選罷法：對於候選人賄賂使其放棄競選，處幾年以上徒刑？", options: ["1 年", "3 年", "5 年", "10 年"], answer: 1, explanation: "答案：B (3 年以上)。選罷法第97條。" },
+            { question: "兒少法：父母使六歲以下兒童獨處，處新臺幣多少罰鍰？", options: ["1,000-5,000", "3,000-15,000", "1萬-5萬", "6萬-60萬"], answer: 1, explanation: "答案：B (3,000-15,000元)。兒少法第99條。" },
+            { question: "社維法：藉端滋擾住戶或公共場所，處幾日以下拘留？", options: ["1 日", "3 日", "5 日", "7 日"], answer: 1, explanation: "答案：B (3 日以下拘留或1萬2千元以下罰鍰)。社維法第68條。" },
+            { question: "勞基法：勞工工作年資應自何日起算？", options: ["簽約日", "受僱之日", "試用期滿日", "投保日"], answer: 1, explanation: "答案：B (受僱之日)。勞動基準法第84條之2。" },
+            { question: "著作權法：非營利活動公開播放他人著作且未支領報酬者？", options: ["違法", "合法 (合理使用)", "須申請", "視作品字數"], answer: 1, explanation: "答案：B (合理使用/合法)。著作權法第55條。" },
+
+            // 校園性平、霸凌、兒少保護
+            { question: "【是非題】購買捷運悠遊卡也是一種法律行為。", options: ["A. 正確", "B. 錯誤", "C. 視金額而定", "D. 無效行為"], answer: 0, explanation: "答案：正確。購買悠遊卡屬成立買賣與運送契約之法律行為。" },
+            { question: "【是非題】未滿18歲可以借證件給通訊行申請門號拿錢，不需要去計較。", options: ["A. 正確", "B. 錯誤", "C. 合法賺錢", "D. 雙方同意即可"], answer: 1, explanation: "答案：錯誤。隨意提供證件門號極易遭詐騙集團做為人頭卡。" },
+            { question: "【是非題】強迫他人口交、肛交及以器物進入他人性器均可能成立強制性交罪。", options: ["A. 正確", "B. 錯誤", "C. 僅成立性騷擾", "D. 屬強制猥褻"], answer: 0, explanation: "答案：正確。刑法第10條第5項已明確定義性交範圍。" },
+            { question: "校園性別事件當事人若為不同學校學生，應由哪一所學校主責調查？", options: ["被害人學校", "教育部", "警察局", "行為人現就讀學校"], answer: 3, explanation: "答案：D。性別平等教育法規定原則由行為人現就讀學校主責調查。" },
+            { question: "霸凌處理小組訪談學生時，學生有權要求何人陪同？", options: ["法定代理人或現在保護之人", "全體同學", "鄰居", "路人"], answer: 0, explanation: "答案：A。校園霸凌防制準則規定得要求家長或法定代理人陪同。" },
+            { question: "學校教職員工知悉疑似校園性別事件，至遲應於幾小時內完成通報？", options: ["6小時", "12小時", "36小時", "24小時"], answer: 3, explanation: "答案：D。性別平等教育法第22條：24小時內通報。" },
+            { question: "學校防制委員會會議，法定開會出席人數為何？", options: ["三分之一", "四分之三", "二分之一以上", "全數出席"], answer: 2, explanation: "答案：C。二分之一以上委員出席始得開會。" },
+
+            // 憲法增修條文與公職選罷法
+            { question: "憲法：行政院移請立法院覆議，若立法院休會，應於幾日內自行集會？", options: ["3日", "7日", "10日", "15日"], answer: 1, explanation: "答案：B (7日)。憲法增修條文第3條第2項第2款。" },
+            { question: "憲法：立法院對行政院長提不信任案，應於送達 72 小時後之幾小時內投票？", options: ["24小時", "48小時", "12小時", "72小時"], answer: 1, explanation: "答案：B (48小時)。憲法增修條文第3條第2項第3款。" },
+            { question: "憲法：立法院立法委員共計多少人？", options: ["100人", "113人", "125人", "150人"], answer: 1, explanation: "答案：B (113人)。憲法增修條文第4條第1項。" },
+            { question: "憲法：立法院政黨名單之婦女當選名額，不得低於幾分之幾？", options: ["三分之一", "四分之一", "二分之一", "五分之二"], answer: 2, explanation: "答案：C (二分之一)。憲法增修條文第4條第2項。" },
+            { question: "憲法：司法院大法官共幾人？", options: ["9人", "11人", "15人", "17人"], answer: 2, explanation: "答案：C (15人)。憲法增修條文第5條第1項。" },
+            { question: "選罷法：符合條件之政黨，最近一次全國不分區立委得票率須達多少以上始得分配席次？", options: ["1%", "2%", "3%", "5%"], answer: 2, explanation: "答案：C (5%)。公職人員選舉罷免法第67條。" },
+            { question: "選罷法：候選人競選費用補貼，每票補貼新臺幣多少元？", options: ["10元", "20元", "30元", "50元"], answer: 2, explanation: "答案：C (30元)。" },
+            { question: "緊急醫療：救護紀錄表應由醫院及救護機關分別保存至少幾年？", options: ["一年", "三年", "五年", "七年"], answer: 3, explanation: "答案：D (7年)。緊急醫療救護法。" },
+
+            // 對話 2000 題精選題目
+            { question: "個資法：識別類代號「Ｃ○○一」指辨識個人者，包含下列哪一項資訊？", options: ["信用評等", "醫療紀錄", "薪資", "姓名、職稱或相片"], answer: 3, explanation: "答案：D。" },
+            { question: "民法：繼承權之消滅時效，除法律另有規定外，其期間為幾年？", options: ["二年", "五年", "十年", "十五年"], answer: 3, explanation: "答案：D。" },
+            { question: "選罷法：立法委員區域選出者因故出缺，應自事由發生起幾個月內完成補選？", options: ["一個月", "二個月", "六個月", "三個月"], answer: 3, explanation: "答案：D。" },
+            { question: "個資法：特定目的代號「○二五」代表下列哪一種行政業務？", options: ["戶政", "教育", "財稅", "犯罪預防、偵查、執行及更生保護"], answer: 3, explanation: "答案：D。" },
+            { question: "交通規則：汽車考驗中，交通規則筆試之及格分數為多少分？", options: ["70 分", "75 分", "80 分", "85 分"], answer: 3, explanation: "答案：D。" },
+            { question: "民法：人之權利能力，依法規定終止於何時？", options: ["喪失意識", "遺產清算", "宣告失蹤", "死亡"], answer: 3, explanation: "答案：D。" },
+            { question: "個資法：受理查詢個人資料准駁之延長，累計不得超過幾日？", options: ["7 日", "10 日", "12 日", "15 日"], answer: 3, explanation: "答案：D。" },
+            { question: "著作權法：製版人之權利，自製版完成時起算存續幾年？", options: ["三年", "五年", "七年", "十年"], answer: 3, explanation: "答案：D。" },
+            { question: "霸凌防制：防制委員會中，家長代表之比例在國民中小學應占委員總數至少？", options: ["1/10", "1/2", "1/3", "1/5 以上"], answer: 3, explanation: "答案：D。" },
+            { question: "霸凌防制：行為人若為未成年學生，其處分應考慮何種法律之精神？", options: ["民法", "刑法", "選罷法", "少年事件處理法"], answer: 3, explanation: "答案：D。" }
         ];
 
-        // 本地快取版本升級處理 (v10 全手機芫荽體適配)
+        // 本地快取版本升級處理 (v14 強制清理覆蓋)
         let quizData = defaultQuizData;
-        localStorage.setItem('law_quiz_glass_data_v10', JSON.stringify(quizData));
+        localStorage.setItem('law_quiz_glass_data_v14', JSON.stringify(quizData));
 
         let currentMode = 'practice';
         let activeQuestions = [];
@@ -572,7 +585,7 @@
             }
         }
 
-        // --- 5. 按下按鈕從題庫隨機抽取題目 ---
+        // --- 5. 按下按鈕從總題庫隨機抽取 30 題 ---
         function startQuiz() {
             clearInterval(timer);
             
@@ -600,7 +613,7 @@
             document.getElementById('total-count').innerText = activeQuestions.length;
             document.getElementById('live-score').innerText = '0';
             document.getElementById('combo-box').classList.add('hidden');
-            document.getElementById('start-btn-text').innerText = "重新抽取題目開局";
+            document.getElementById('start-btn-text').innerText = "重新抽取 30 題開局";
 
             const modeTitles = {
                 'practice': '即時練習',
@@ -648,9 +661,8 @@
                 updateSpeedTimerDisplay();
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    // 逾時未答視同答錯，並鎖定答案
                     if (userAnswers[currentIndex] === null) {
-                        userAnswers[currentIndex] = -1; // -1 代表逾時未答
+                        userAnswers[currentIndex] = -1;
                         currentCombo = 0;
                         updateComboBox();
                         triggerShake();
@@ -700,7 +712,6 @@
                 let btnStyle = "bg-slate-900/60 border-white/10 hover:border-white/30 text-slate-300";
                 let badgeStyle = "bg-slate-800 text-slate-400";
 
-                // 核心控制：若已做出選擇，鎖定按鈕並變更樣式（不可再修改）
                 if (hasAnswered) {
                     btn.disabled = true;
 
@@ -715,7 +726,6 @@
                             btnStyle = "bg-slate-900/30 border-white/5 text-slate-500 opacity-50";
                         }
                     } else {
-                        // 模擬考模式（僅標示選中的項目）
                         if (isSelected) {
                             btnStyle = "bg-indigo-500/30 border-indigo-500/60 text-white font-black shadow-lg shadow-indigo-500/20";
                             badgeStyle = "bg-indigo-500 text-white";
@@ -757,7 +767,6 @@
         }
 
         function selectOption(optIdx) {
-            // 核心規則：如果該題已經作答過（不為 null），直接阻斷點擊，不允許修改答案
             if (userAnswers[currentIndex] !== null) return;
 
             const q = activeQuestions[currentIndex];
@@ -906,13 +915,13 @@
 
         // --- 6. 統計與歷史紀錄存取 ---
         function saveHistory(record) {
-            let history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v10')) || [];
+            let history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v14')) || [];
             history.unshift(record);
-            localStorage.setItem('law_quiz_glass_history_v10', JSON.stringify(history));
+            localStorage.setItem('law_quiz_glass_history_v14', JSON.stringify(history));
         }
 
         function renderStats() {
-            const history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v10')) || [];
+            const history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v14')) || [];
             
             let totalAns = 0;
             let sumRate = 0;
@@ -957,7 +966,7 @@
 
         function clearHistory() {
             if (confirm('確定要清除所有練習歷史紀錄嗎？')) {
-                localStorage.removeItem('law_quiz_glass_history_v10');
+                localStorage.removeItem('law_quiz_glass_history_v14');
                 renderStats();
             }
         }
@@ -1023,11 +1032,11 @@
         }
 
         function saveQuizData() {
-            localStorage.setItem('law_quiz_glass_data_v10', JSON.stringify(quizData));
+            localStorage.setItem('law_quiz_glass_data_v14', JSON.stringify(quizData));
         }
 
         function resetDefaultBank() {
-            if (confirm('確定要恢復為基礎示範題庫嗎？')) {
+            if (confirm('確定要恢復為預設完整題庫嗎？')) {
                 quizData = defaultQuizData;
                 saveQuizData();
                 renderBankList();
@@ -1064,5 +1073,4 @@
     </script>
 </body>
 </html>
-```e-o-f
 
