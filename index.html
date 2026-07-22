@@ -1,70 +1,1068 @@
-<!doctype html>
-<html lang="zh-Hant">
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#4057c8">
-<title>日本旅遊記帳</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>法律達人競賽刷題酷 | 藍紫液態玻璃手機字體優化版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入芫荽體官方字型檔 -->
+    <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
+    <!-- FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti 華麗彩帶特效 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #f43f5e;
+            --gold: #f59e0b;
+        }
+
+        /* --------------------------------------------------
+           絕對強制全域與行動裝置字體覆蓋（芫荽體 Iansui）
+        -------------------------------------------------- */
+        *, *::before, *::after, html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed, 
+        figure, figcaption, footer, header, hgroup, 
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video, input, button, select, textarea, option {
+            font-family: 'Iansui', -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        body {
+            background-color: #0f172a; 
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+            color: #f8fafc;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 夢幻藍紫動態背景 */
+        .bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+        }
+
+        .orb {
+            position: absolute;
+            filter: blur(90px);
+            border-radius: 50%;
+            opacity: 0.45;
+            z-index: -1;
+            animation: moveOrb 18s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 450px; height: 450px; background: var(--primary); top: -10%; left: -10%; }
+        .orb-2 { width: 550px; height: 550px; background: var(--secondary); bottom: -10%; right: -10%; animation-delay: -4s; }
+        .orb-3 { width: 350px; height: 350px; background: #3b82f6; top: 40%; left: 30%; animation-delay: -8s; }
+
+        @keyframes moveOrb {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(120px, 60px) scale(1.25); }
+        }
+
+        /* 標題流動光影 */
+        .shimmer-text {
+            background: linear-gradient(120deg, #fff 20%, #818cf8 40%, #c084fc 60%, #fff 80%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s infinite linear;
+            text-shadow: 0 0 30px rgba(129, 140, 248, 0.3);
+        }
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        /* 液態玻璃感 (Liquid Glassmorphism 90% 不透明度) */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.90);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* 按鈕特化玻璃感 */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.25s ease;
+        }
+        .glass-btn:hover, .glass-btn:active {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 視差粒子 */
+        .particle {
+            position: fixed;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        /* 答錯震動效果 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* 淡入動畫 */
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 客製化滾動條 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 10px; }
+    </style>
 </head>
-<body>
-<header>
-  <h1>日本旅遊記帳</h1>
-  <p>完整逐項明細｜Excel 匯入｜Supabase 雲端同步</p>
-</header>
+<body class="flex flex-col min-h-screen">
 
-<main>
-  <section class="stats" id="stats"></section>
-
-  <section class="card">
-    <div class="section-title">
-      <div>
-        <div class="eyebrow">EXCEL IMPORT</div>
-        <h2>Excel 上傳</h2>
-      </div>
-      <span id="connectionPill" class="pill">連線中</span>
+    <!-- 動態背景與粒子 -->
+    <div class="bg-canvas">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     </div>
+    <div id="particles-container"></div>
+    <div id="cursor-glow" class="fixed pointer-events-none z-[100] w-[500px] h-[500px] bg-indigo-500/10 blur-[100px] rounded-full -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500 opacity-0 md:opacity-100"></div>
 
-    <div class="upload-box">
-      <input id="excelFile" type="file" accept=".xlsx,.xls,.csv">
-      <p>支援：.xlsx、.xls、.csv</p>
-    </div>
+    <!-- 頂部導覽列 -->
+    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-2xl border-b border-white/10 px-3 md:px-6">
+        <div class="max-w-6xl mx-auto h-16 md:h-20 flex items-center justify-between">
+            <!-- 標題區域 -->
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="switchTab('quiz')">
+                <div class="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 rounded-xl flex items-center justify-center text-white text-lg md:text-xl shadow-lg shadow-indigo-500/30 shrink-0">
+                    ⚖️
+                </div>
+                <div class="flex flex-col justify-center">
+                    <span class="font-black text-base md:text-xl tracking-tight text-white whitespace-nowrap">法律達人</span>
+                    <span class="text-[9px] md:text-[10px] tracking-widest text-indigo-300 uppercase whitespace-nowrap">競賽刷題酷</span>
+                </div>
+            </div>
 
-    <div class="button-row">
-      <button id="previewBtn" class="secondary" type="button">預覽 Excel</button>
-      <button id="importBtn" class="primary" type="button" disabled>寫入 Supabase</button>
-    </div>
+            <!-- 右側選單按鈕 -->
+            <div class="flex items-center space-x-1 sm:space-x-3">
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="glass-btn px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-black text-amber-300 border-amber-500/30 bg-amber-500/10 flex items-center">
+                    <i class="fa-solid fa-pen-to-square sm:mr-1.5"></i><span class="hidden xs:inline sm:inline ml-1">刷題</span>
+                </button>
+                <button onclick="switchTab('stats')" id="nav-stats" class="glass-btn px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-black text-slate-300 flex items-center">
+                    <i class="fa-solid fa-chart-line sm:mr-1.5"></i><span class="hidden xs:inline sm:inline ml-1">統計</span>
+                </button>
+                <button onclick="switchTab('bank')" id="nav-bank" class="glass-btn px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-black text-slate-300 flex items-center">
+                    <i class="fa-solid fa-database sm:mr-1.5"></i><span class="hidden xs:inline sm:inline ml-1">題庫</span>
+                </button>
+            </div>
+        </div>
+    </nav>
 
-    <div id="importStatus" class="status">尚未選擇檔案。</div>
-    <div id="previewArea"></div>
-  </section>
+    <!-- 頁頭 Hero 區 -->
+    <header class="relative py-6 md:py-10 px-4 text-center overflow-hidden">
+        <div class="max-w-4xl mx-auto">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 mb-3 backdrop-blur-md">
+                <span class="w-2 h-2 bg-indigo-400 rounded-full animate-ping"></span>
+                <span class="text-[10px] md:text-xs font-black tracking-widest text-indigo-300 uppercase">2026 法律達人競賽備戰系統</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black mb-2 tracking-tight shimmer-text">掌握法條 · 決勝賽場</h1>
+            <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide max-w-xl mx-auto">
+                手機與電腦全平台支援芫荽體！選定答案後即自動鎖定防修改。
+            </p>
+        </div>
+    </header>
 
-  <section class="card">
-    <div class="section-title">
-      <div>
-        <div class="eyebrow">LEDGER</div>
-        <h2>完整逐條明細</h2>
-      </div>
-      <button id="refreshBtn" class="icon-btn" type="button">↻</button>
-    </div>
+    <!-- 主要內容區域 -->
+    <main class="max-w-4xl mx-auto px-3 md:px-6 pb-20 flex-1 w-full">
 
-    <div class="filters">
-      <input id="search" placeholder="搜尋商品、店家、類別、付款方式">
-      <select id="dayFilter"><option value="">全部 Day</option></select>
-      <select id="storeFilter"><option value="">全部店家</option></select>
-    </div>
+        <!-- ==================== TAB 1: 刷題測驗頁面 ==================== -->
+        <section id="tab-quiz" class="space-y-6">
+            <!-- 1. 模式設定選單卡片 -->
+            <div class="glass-card p-5 md:p-7 rounded-3xl space-y-5">
+                <!-- 模式選擇 -->
+                <div>
+                    <label class="block text-xs font-black text-purple-300 tracking-widest uppercase mb-2.5 flex items-center">
+                        <i class="fa-solid fa-gamepad mr-1.5"></i>選擇練習模式（隨機抽取 30 題）
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setMode('practice')" id="mode-practice" class="mode-btn glass-btn py-3 rounded-xl text-xs md:text-sm font-black text-indigo-300 border-indigo-500/40 bg-indigo-500/10">
+                            <i class="fa-solid fa-book-open mr-1"></i>即時練習
+                        </button>
+                        <button onclick="setMode('exam')" id="mode-exam" class="mode-btn glass-btn py-3 rounded-xl text-xs md:text-sm font-black text-slate-400">
+                            <i class="fa-solid fa-stopwatch mr-1"></i>模擬考(30分)
+                        </button>
+                        <button onclick="setMode('speed')" id="mode-speed" class="mode-btn glass-btn py-3 rounded-xl text-xs md:text-sm font-black text-slate-400">
+                            <i class="fa-solid fa-bolt mr-1"></i>10秒快答
+                        </button>
+                    </div>
+                </div>
 
-    <div id="status" class="status">正在連線 Supabase…</div>
-    <div id="detailList"></div>
-  </section>
-</main>
+                <!-- 開始刷題按鈕 -->
+                <div class="pt-2">
+                    <button onclick="startQuiz()" class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-black py-3.5 rounded-2xl shadow-xl shadow-purple-500/25 transition-all transform active:scale-95 flex items-center justify-center space-x-2 text-base">
+                        <i class="fa-solid fa-play"></i>
+                        <span id="start-btn-text">開始抽取 30 題刷題</span>
+                    </button>
+                </div>
+            </div>
 
-<script>
-const SUPABASE_URL = "https://tnebopdwcrawgbjdernw.supabase.co";
-const SUPABASE_KEY = "sb_publishable_c_vHmC5AiKfNJ1Qqr9eUbg_T8WzOLd3";
-</script>
-<script src="app.js"></script>
+            <!-- 2. 主測驗卡片 (預設隱藏，按按鈕後才展開) -->
+            <div id="quiz-card" class="glass-card rounded-3xl overflow-hidden relative border-indigo-500/20 hidden">
+                <!-- 頂部狀態列 -->
+                <div class="px-4 py-3.5 border-b border-white/10 bg-slate-900/50 flex justify-between items-center flex-wrap gap-2 text-xs">
+                    <div class="flex items-center space-x-2">
+                        <span id="badge-mode" class="px-2.5 py-0.5 rounded-full font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">即時練習</span>
+                        <span class="text-slate-400 font-bold">第 <span id="current-index" class="text-white">1</span> / <span id="total-count">30</span> 題</span>
+                    </div>
+
+                    <!-- 計時器與分數連勝 -->
+                    <div class="flex items-center space-x-3">
+                        <div id="combo-box" class="hidden text-amber-400 font-black text-xs animate-bounce flex items-center">
+                            <i class="fa-solid fa-fire mr-1"></i><span id="combo-count">0</span> 連勝！
+                        </div>
+                        <div id="timer-box" class="hidden font-mono font-black text-sm flex items-center">
+                            <i class="fa-solid fa-clock mr-1"></i><span id="time-display">30:00</span>
+                        </div>
+                        <div class="font-black text-slate-300">
+                            得分：<span id="live-score" class="text-amber-400 text-sm md:text-base">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 頂部動態進度條 -->
+                <div class="w-full bg-slate-950/50 h-1.5">
+                    <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-1.5 transition-all duration-300 rounded-r-full" style="width: 0%"></div>
+                </div>
+
+                <!-- 題目與選項區塊 -->
+                <div class="p-5 md:p-8 space-y-6">
+                    <h2 id="question-text" class="text-base md:text-xl font-black text-white leading-relaxed tracking-wide">
+                        題目載入中...
+                    </h2>
+
+                    <!-- 選項按鈕組 -->
+                    <div id="options-container" class="space-y-3">
+                        <!-- 動態渲染選項 -->
+                    </div>
+
+                    <!-- 即時解析顯示區域 -->
+                    <div id="explanation-box" class="hidden p-4 rounded-2xl border bg-slate-900/80 backdrop-blur-md transition-all">
+                        <div class="flex items-center space-x-2 font-black mb-1.5 text-sm" id="explanation-title">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>解析說明</span>
+                        </div>
+                        <p id="explanation-text" class="text-xs md:text-sm text-slate-300 leading-relaxed font-light">
+                            法條與觀念解析內容...
+                        </p>
+                    </div>
+
+                    <!-- 底部導覽按鈕 -->
+                    <div class="pt-4 flex justify-between items-center border-t border-white/10">
+                        <button onclick="prevQuestion()" id="prev-btn" class="glass-btn px-4 py-2 rounded-xl text-xs font-black text-slate-400 hover:text-white disabled:opacity-20" disabled>
+                            <i class="fa-solid fa-chevron-left mr-1"></i>上一題
+                        </button>
+                        <button onclick="nextQuestion()" id="next-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-6 py-2 rounded-xl text-xs shadow-lg transition hidden">
+                            下一題 <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                        <button onclick="submitExam()" id="submit-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-2 rounded-xl text-xs shadow-lg transition hidden">
+                            完成提交 <i class="fa-solid fa-paper-plane ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 測驗結算卡片 (預設隱藏) -->
+            <div id="result-card" class="glass-card p-6 md:p-10 rounded-3xl text-center space-y-6 hidden">
+                <div class="inline-flex p-4 bg-gradient-to-tr from-amber-500/20 to-purple-500/20 border border-amber-500/30 rounded-full text-amber-400 text-4xl mb-1 shadow-2xl">
+                    ⚖️
+                </div>
+                <h2 class="text-2xl md:text-4xl font-black text-white tracking-tight shimmer-text">測驗結算完成！</h2>
+
+                <div class="grid grid-cols-3 gap-2 md:gap-4 max-w-xl mx-auto">
+                    <div class="glass-card p-3 md:p-4 rounded-2xl border-white/10">
+                        <div class="text-[10px] md:text-xs text-indigo-300 font-black uppercase">最終得分</div>
+                        <div id="final-score" class="text-xl md:text-3xl font-black text-amber-400 mt-1">0</div>
+                    </div>
+                    <div class="glass-card p-3 md:p-4 rounded-2xl border-white/10">
+                        <div class="text-[10px] md:text-xs text-purple-300 font-black uppercase">答對題數</div>
+                        <div id="final-correct" class="text-xl md:text-3xl font-black text-emerald-400 mt-1">0 / 0</div>
+                    </div>
+                    <div class="glass-card p-3 md:p-4 rounded-2xl border-white/10">
+                        <div class="text-[10px] md:text-xs text-rose-300 font-black uppercase">正確率</div>
+                        <div id="final-rate" class="text-xl md:text-3xl font-black text-indigo-400 mt-1">0%</div>
+                    </div>
+                </div>
+
+                <p id="result-comment" class="text-slate-300 text-xs md:text-sm font-light max-w-md mx-auto">
+                    保持這個勁頭，競賽一定能奪得佳績！
+                </p>
+
+                <div class="pt-2 flex justify-center space-x-3">
+                    <button onclick="startQuiz()" class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-black px-6 py-2.5 rounded-xl text-xs shadow-lg transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i>再試一次
+                    </button>
+                    <button onclick="switchTab('stats')" class="glass-btn px-6 py-2.5 rounded-xl text-xs text-slate-200 font-black">
+                        觀看歷程
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: 學習統計頁面 ==================== -->
+        <section id="tab-stats" class="space-y-6 hidden">
+            <div class="flex items-center space-x-3">
+                <div class="w-2 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
+                <h2 class="text-xl md:text-2xl font-black text-white">個人學習統計數據</h2>
+            </div>
+
+            <!-- 數據概覽三卡片 -->
+            <div class="grid grid-cols-3 gap-2 md:gap-4">
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <div class="text-indigo-400 text-lg mb-1"><i class="fa-solid fa-calculator"></i></div>
+                    <div class="text-[10px] text-slate-400 font-black uppercase">總答題量</div>
+                    <div id="stat-total-ans" class="text-lg md:text-2xl font-black text-white mt-0.5">0</div>
+                </div>
+
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <div class="text-emerald-400 text-lg mb-1"><i class="fa-solid fa-bullseye"></i></div>
+                    <div class="text-[10px] text-slate-400 font-black uppercase">平均正確率</div>
+                    <div id="stat-avg-rate" class="text-lg md:text-2xl font-black text-white mt-0.5">0%</div>
+                </div>
+
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <div class="text-amber-400 text-lg mb-1"><i class="fa-solid fa-trophy"></i></div>
+                    <div class="text-[10px] text-slate-400 font-black uppercase">最高連勝</div>
+                    <div id="stat-max-combo" class="text-lg md:text-2xl font-black text-white mt-0.5">0</div>
+                </div>
+            </div>
+
+            <!-- 歷史紀錄列表 -->
+            <div class="glass-card rounded-3xl overflow-hidden">
+                <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                    <h3 class="font-black text-white text-sm">最近刷題歷史紀錄</h3>
+                    <button onclick="clearHistory()" class="text-xs text-rose-400 hover:underline font-black">清除紀錄</button>
+                </div>
+                <div class="divide-y divide-white/5" id="history-list">
+                    <div class="p-8 text-center text-slate-500 text-xs">尚無刷題紀錄，快去完成一次試題吧！</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: 題庫管理頁面 ==================== -->
+        <section id="tab-bank" class="space-y-6 hidden">
+            <div class="flex justify-between items-center flex-wrap gap-2">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2 h-6 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+                    <h2 class="text-xl md:text-2xl font-black text-white">題庫內容管理</h2>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="exportQuestions()" class="glass-btn px-3 py-1.5 rounded-lg text-xs font-black text-indigo-300">
+                        <i class="fa-solid fa-download mr-1"></i>匯出 JSON
+                    </button>
+                    <label class="glass-btn px-3 py-1.5 rounded-lg text-xs font-black text-purple-300 cursor-pointer">
+                        <i class="fa-solid fa-upload mr-1"></i>匯入 JSON
+                        <input type="file" id="import-file" class="hidden" accept=".json" onchange="importQuestions(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- 新增題目表單 -->
+            <div class="glass-card p-5 rounded-3xl space-y-4">
+                <h3 class="font-black text-white text-sm border-b border-white/10 pb-2 flex items-center">
+                    <i class="fa-solid fa-plus-circle mr-2 text-purple-400"></i>手動新增題目至題庫
+                </h3>
+                <form id="add-question-form" onsubmit="handleAddQuestion(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-black text-slate-400 mb-1">正確答案</label>
+                        <select id="add-answer" class="w-full bg-slate-900/80 border border-white/10 p-2.5 rounded-xl text-white outline-none">
+                            <option value="0">選項 A</option>
+                            <option value="1">選項 B</option>
+                            <option value="2">選項 C</option>
+                            <option value="3">選項 D</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-black text-slate-400 mb-1">題目敘述</label>
+                        <textarea id="add-qtext" required rows="2" class="w-full bg-slate-900/80 border border-white/10 p-2.5 rounded-xl text-white outline-none" placeholder="輸入題目敘述..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <input type="text" id="add-opt0" required class="w-full bg-slate-900/80 border border-white/10 p-2 rounded-xl text-white outline-none" placeholder="選項 A">
+                        </div>
+                        <div>
+                            <input type="text" id="add-opt1" required class="w-full bg-slate-900/80 border border-white/10 p-2 rounded-xl text-white outline-none" placeholder="選項 B">
+                        </div>
+                        <div>
+                            <input type="text" id="add-opt2" required class="w-full bg-slate-900/80 border border-white/10 p-2 rounded-xl text-white outline-none" placeholder="選項 C">
+                        </div>
+                        <div>
+                            <input type="text" id="add-opt3" required class="w-full bg-slate-900/80 border border-white/10 p-2 rounded-xl text-white outline-none" placeholder="選項 D">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-black text-slate-400 mb-1">法條與解析說明</label>
+                        <textarea id="add-explain" rows="2" class="w-full bg-slate-900/80 border border-white/10 p-2.5 rounded-xl text-white outline-none" placeholder="輸入解說或法條依據..."></textarea>
+                    </div>
+
+                    <button type="submit" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-black px-6 py-2.5 rounded-xl shadow-lg w-full text-xs">
+                        <i class="fa-solid fa-plus mr-1"></i>加入題庫
+                    </button>
+                </form>
+            </div>
+
+            <!-- 現有題庫總覽列表 -->
+            <div class="glass-card p-5 rounded-3xl space-y-3">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <h3 class="font-black text-white text-sm">現有題庫總覽 (<span id="bank-total-count" class="text-amber-400">0</span> 題)</h3>
+                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置題庫</button>
+                </div>
+                <div id="bank-list-container" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                    <!-- 動態渲染題目卡片 -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="py-6 text-center text-[10px] text-slate-500 border-t border-white/5 bg-slate-950/80 mt-auto">
+        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 手機芫荽體全優化版</p>
+    </footer>
+
+    <!-- 腳本邏輯 -->
+    <script>
+        // --- 1. 預設精選基礎示範題庫 ---
+        const defaultQuizData = [
+            {
+                question: "根據中華民國憲法規定，中華民國之主權屬於誰？",
+                options: ["總統", "立法院", "國民全體", "行政院"],
+                answer: 2,
+                explanation: "《中華民國憲法》第 2 條明定：中華民國之主權屬於國民全體。"
+            },
+            {
+                question: "依現行民法規定，滿幾歲為完全行為能力人（成年）？",
+                options: ["16 歲", "18 歲", "20 歲", "22 歲"],
+                answer: 1,
+                explanation: "我國民法修正案自 2023 年 1 月 1 日起生效，成年年齡已正式下修為 18 歲。"
+            },
+            {
+                question: "駕駛人騎乘機車未戴安全帽，屬於違反何種法律規範？",
+                options: ["刑法", "民法", "行政法 (道路交通管理處罰條例)", "憲法"],
+                answer: 2,
+                explanation: "未戴安全帽屬於違反道路交通管理處罰條例，係屬行政秩序罰。"
+            },
+            {
+                question: "刑事訴訟制度中「無罪推定原則」的核心精神為何？",
+                options: [
+                    "被告必須自行證明自己沒有犯罪",
+                    "未經審判證明有罪確定前，推定其為無罪",
+                    "只要檢察官起訴就代表被告有罪",
+                    "警察可以逕行對嫌疑犯宣判處罰"
+                ],
+                answer: 1,
+                explanation: "《刑事訴訟法》第 154 條第 1 項規定：被告未經審判證明有罪確定前，推定其為無罪。"
+            },
+            {
+                question: "下列何者不屬於智慧財產權（IPR）之保護範疇？",
+                options: ["著作權", "專利權", "商標權", "動產所有權"],
+                answer: 3,
+                explanation: "動產所有權係民法物權規範範疇；著作權、專利權與商標權方為智慧財產權。"
+            }
+        ];
+
+        // 本地快取版本升級處理 (v10 全手機芫荽體適配)
+        let quizData = defaultQuizData;
+        localStorage.setItem('law_quiz_glass_data_v10', JSON.stringify(quizData));
+
+        let currentMode = 'practice';
+        let activeQuestions = [];
+        let currentIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        let timer = null;
+        let timeLeft = 1800;
+        let currentCombo = 0;
+        let maxCombo = 0;
+
+        // --- 2. 視差粒子與光暈特效初始化 ---
+        const pContainer = document.getElementById('particles-container');
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 3 + 1;
+            p.style.width = size + 'px'; p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + 'vw'; p.style.top = Math.random() * 100 + 'vh';
+            p.setAttribute('data-speed', Math.random() * 0.05);
+            pContainer.appendChild(p);
+        }
+
+        window.addEventListener('scroll', () => {
+            document.querySelectorAll('.particle').forEach(p => {
+                const speed = p.getAttribute('data-speed');
+                p.style.transform = `translateY(${window.scrollY * speed}px)`;
+            });
+        });
+
+        const cursorGlow = document.getElementById('cursor-glow');
+        document.addEventListener('mousemove', (e) => {
+            cursorGlow.style.left = e.clientX + 'px';
+            cursorGlow.style.top = e.clientY + 'px';
+            cursorGlow.style.opacity = '1';
+        });
+
+        // --- 3. 分頁切換邏輯 ---
+        function switchTab(tabName) {
+            ['quiz', 'stats', 'bank'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).className = "glass-btn px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-black text-slate-300 flex items-center";
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabName}`).className = "glass-btn px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-black text-amber-300 border-amber-500/30 bg-amber-500/10 flex items-center";
+
+            if (tabName === 'stats') renderStats();
+            if (tabName === 'bank') renderBankList();
+        }
+
+        // --- 4. 模式切換 ---
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.className = "mode-btn glass-btn py-3 rounded-xl text-xs md:text-sm font-black text-slate-400";
+            });
+            const activeBtn = document.getElementById(`mode-${mode}`);
+            activeBtn.className = "mode-btn glass-btn py-3 rounded-xl text-xs md:text-sm font-black text-indigo-300 border-indigo-500/40 bg-indigo-500/10";
+            
+            if (!document.getElementById('quiz-card').classList.contains('hidden')) {
+                startQuiz();
+            }
+        }
+
+        // --- 5. 按下按鈕從題庫隨機抽取題目 ---
+        function startQuiz() {
+            clearInterval(timer);
+            
+            if (quizData.length === 0) {
+                alert('題庫目前完全為空，請至「題庫管理」新增題目！');
+                return;
+            }
+
+            // 隨機打亂總題庫並取最多 30 題
+            let shuffled = [...quizData].sort(() => Math.random() - 0.5);
+            const questionLimit = Math.min(30, shuffled.length);
+            activeQuestions = shuffled.slice(0, questionLimit);
+
+            currentIndex = 0;
+            userAnswers = new Array(activeQuestions.length).fill(null);
+            score = 0;
+            currentCombo = 0;
+            maxCombo = 0;
+
+            const quizCard = document.getElementById('quiz-card');
+            document.getElementById('result-card').classList.add('hidden');
+            quizCard.classList.remove('hidden');
+            quizCard.classList.add('animate-fade-in');
+
+            document.getElementById('total-count').innerText = activeQuestions.length;
+            document.getElementById('live-score').innerText = '0';
+            document.getElementById('combo-box').classList.add('hidden');
+            document.getElementById('start-btn-text').innerText = "重新抽取題目開局";
+
+            const modeTitles = {
+                'practice': '即時練習',
+                'exam': '模擬考(30分)',
+                'speed': '⚡10秒快答'
+            };
+            document.getElementById('badge-mode').innerText = modeTitles[currentMode];
+
+            const timerBox = document.getElementById('timer-box');
+            if (currentMode === 'exam') {
+                timerBox.classList.remove('hidden');
+                timerBox.className = "font-mono font-black text-sm flex items-center text-rose-400";
+                timeLeft = activeQuestions.length * 60;
+                updateTimerDisplay();
+                timer = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        alert('測驗時間結束，系統自動結算！');
+                        submitExam();
+                    }
+                }, 1000);
+            } else if (currentMode === 'speed') {
+                timerBox.classList.remove('hidden');
+                startSpeedTimer();
+            } else {
+                timerBox.classList.add('hidden');
+            }
+
+            renderCurrentQuestion();
+
+            // 平滑滾動至題目位置
+            quizCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 啟動 10 秒單題倒數計時器
+        function startSpeedTimer() {
+            clearInterval(timer);
+            timeLeft = 10;
+            updateSpeedTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateSpeedTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    // 逾時未答視同答錯，並鎖定答案
+                    if (userAnswers[currentIndex] === null) {
+                        userAnswers[currentIndex] = -1; // -1 代表逾時未答
+                        currentCombo = 0;
+                        updateComboBox();
+                        triggerShake();
+                        showExplanation();
+                        renderCurrentQuestion();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateSpeedTimerDisplay() {
+            const timeDisplay = document.getElementById('time-display');
+            const timerBox = document.getElementById('timer-box');
+            timeDisplay.innerText = `00:${timeLeft.toString().padStart(2, '0')}`;
+            if (timeLeft <= 3) {
+                timerBox.className = "font-mono font-black text-sm flex items-center text-rose-500 animate-ping";
+            } else {
+                timerBox.className = "font-mono font-black text-sm flex items-center text-amber-400";
+            }
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('time-display').innerText = `${m}:${s}`;
+        }
+
+        function renderCurrentQuestion() {
+            const q = activeQuestions[currentIndex];
+            document.getElementById('current-index').innerText = currentIndex + 1;
+            document.getElementById('question-text').innerText = `${currentIndex + 1}. ${q.question}`;
+
+            const pct = ((currentIndex + 1) / activeQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const hasAnswered = userAnswers[currentIndex] !== null;
+            const optionLabels = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((opt, idx) => {
+                const isSelected = userAnswers[currentIndex] === idx;
+                const isCorrectOpt = idx === q.answer;
+                const btn = document.createElement('button');
+                
+                let btnStyle = "bg-slate-900/60 border-white/10 hover:border-white/30 text-slate-300";
+                let badgeStyle = "bg-slate-800 text-slate-400";
+
+                // 核心控制：若已做出選擇，鎖定按鈕並變更樣式（不可再修改）
+                if (hasAnswered) {
+                    btn.disabled = true;
+
+                    if (currentMode === 'practice' || currentMode === 'speed') {
+                        if (isCorrectOpt) {
+                            btnStyle = "bg-emerald-500/20 border-emerald-500/60 text-emerald-300 font-black shadow-lg shadow-emerald-500/10";
+                            badgeStyle = "bg-emerald-500 text-white";
+                        } else if (isSelected) {
+                            btnStyle = "bg-rose-500/20 border-rose-500/60 text-rose-300 font-black shadow-lg shadow-rose-500/10";
+                            badgeStyle = "bg-rose-500 text-white";
+                        } else {
+                            btnStyle = "bg-slate-900/30 border-white/5 text-slate-500 opacity-50";
+                        }
+                    } else {
+                        // 模擬考模式（僅標示選中的項目）
+                        if (isSelected) {
+                            btnStyle = "bg-indigo-500/30 border-indigo-500/60 text-white font-black shadow-lg shadow-indigo-500/20";
+                            badgeStyle = "bg-indigo-500 text-white";
+                        } else {
+                            btnStyle = "bg-slate-900/30 border-white/5 text-slate-500 opacity-50";
+                        }
+                    }
+                }
+
+                btn.className = `w-full text-left p-3.5 rounded-2xl border transition-all duration-200 flex items-start space-x-3 text-xs md:text-sm ${btnStyle}`;
+                btn.onclick = () => selectOption(idx);
+
+                btn.innerHTML = `
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg text-xs font-black ${badgeStyle}">${optionLabels[idx]}</span>
+                    <span class="flex-1 mt-0.5 tracking-wide">${opt}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (currentIndex === activeQuestions.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+
+            const expBox = document.getElementById('explanation-box');
+            if ((currentMode === 'practice' || currentMode === 'speed') && userAnswers[currentIndex] !== null) {
+                showExplanation();
+            } else {
+                expBox.classList.add('hidden');
+            }
+        }
+
+        function selectOption(optIdx) {
+            // 核心規則：如果該題已經作答過（不為 null），直接阻斷點擊，不允許修改答案
+            if (userAnswers[currentIndex] !== null) return;
+
+            const q = activeQuestions[currentIndex];
+            userAnswers[currentIndex] = optIdx;
+
+            if (currentMode === 'speed') {
+                clearInterval(timer);
+            }
+
+            if (currentMode === 'practice' || currentMode === 'speed') {
+                if (optIdx === q.answer) {
+                    currentCombo++;
+                    if (currentCombo > maxCombo) maxCombo = currentCombo;
+                    triggerConfetti();
+                } else {
+                    currentCombo = 0;
+                    triggerShake();
+                }
+                updateComboBox();
+                showExplanation();
+            }
+
+            renderCurrentQuestion();
+            updateLiveScore();
+        }
+
+        function updateComboBox() {
+            const comboBox = document.getElementById('combo-box');
+            if (currentCombo >= 2) {
+                comboBox.classList.remove('hidden');
+                document.getElementById('combo-count').innerText = currentCombo;
+            } else {
+                comboBox.classList.add('hidden');
+            }
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 40,
+                spread: 50,
+                origin: { y: 0.7 }
+            });
+        }
+
+        function triggerShake() {
+            const card = document.getElementById('quiz-card');
+            card.classList.add('animate-shake');
+            setTimeout(() => card.classList.remove('animate-shake'), 500);
+        }
+
+        function showExplanation() {
+            const q = activeQuestions[currentIndex];
+            const userAns = userAnswers[currentIndex];
+            const isCorrect = userAns === q.answer;
+            const expBox = document.getElementById('explanation-box');
+            const expTitle = document.getElementById('explanation-title');
+            const expText = document.getElementById('explanation-text');
+
+            expBox.classList.remove('hidden');
+            if (isCorrect) {
+                expBox.className = "p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300";
+                expTitle.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>回答正確！（答案已鎖定）</span>`;
+            } else if (userAns === -1) {
+                expBox.className = "p-4 rounded-2xl border bg-amber-950/40 border-amber-500/40 text-amber-300";
+                expTitle.innerHTML = `<i class="fa-solid fa-hourglass-end"></i> <span>思考時間逾時！正確答案：${['A','B','C','D'][q.answer]}</span>`;
+            } else {
+                expBox.className = "p-4 rounded-2xl border bg-rose-950/40 border-rose-500/40 text-rose-300";
+                expTitle.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <span>回答錯誤（正確答案：${['A','B','C','D'][q.answer]}）</span>`;
+            }
+            expText.innerText = q.explanation || "暫無詳細解析說明。";
+        }
+
+        function updateLiveScore() {
+            let tempScore = 0;
+            const ptsPerQ = 100 / activeQuestions.length;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === activeQuestions[idx].answer) {
+                    tempScore += ptsPerQ;
+                }
+            });
+            score = Math.round(tempScore);
+            document.getElementById('live-score').innerText = score;
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                if (currentMode === 'speed' && userAnswers[currentIndex] === null) {
+                    startSpeedTimer();
+                } else if (currentMode === 'speed') {
+                    clearInterval(timer);
+                }
+                renderCurrentQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < activeQuestions.length - 1) {
+                currentIndex++;
+                if (currentMode === 'speed' && userAnswers[currentIndex] === null) {
+                    startSpeedTimer();
+                } else if (currentMode === 'speed') {
+                    clearInterval(timer);
+                }
+                renderCurrentQuestion();
+            }
+        }
+
+        function submitExam() {
+            clearInterval(timer);
+            updateLiveScore();
+
+            let correctCnt = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === activeQuestions[idx].answer) correctCnt++;
+            });
+
+            const rate = Math.round((correctCnt / activeQuestions.length) * 100);
+
+            if (rate >= 80) {
+                confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 } });
+            }
+
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-correct').innerText = `${correctCnt} / ${activeQuestions.length}`;
+            document.getElementById('final-rate').innerText = `${rate}%`;
+
+            let comment = "繼續保持，多看幾次法條解析就能融會貫通！";
+            if (rate === 100) comment = "🏆 完美！全對通過！你就是頂級法律達人！";
+            else if (rate >= 80) comment = "🌟 表現優異！競賽奪牌指日可待！";
+            else if (rate >= 60) comment = "👍 及格了！針對錯題進行觀念補強會更上一層樓！";
+            document.getElementById('result-comment').innerText = comment;
+
+            document.getElementById('quiz-card').classList.add('hidden');
+            document.getElementById('result-card').classList.remove('hidden');
+
+            saveHistory({
+                date: new Date().toLocaleString(),
+                mode: currentMode,
+                score: score,
+                correct: correctCnt,
+                total: activeQuestions.length,
+                maxCombo: maxCombo
+            });
+        }
+
+        // --- 6. 統計與歷史紀錄存取 ---
+        function saveHistory(record) {
+            let history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v10')) || [];
+            history.unshift(record);
+            localStorage.setItem('law_quiz_glass_history_v10', JSON.stringify(history));
+        }
+
+        function renderStats() {
+            const history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v10')) || [];
+            
+            let totalAns = 0;
+            let sumRate = 0;
+            let globalMaxCombo = 0;
+            
+            history.forEach(item => {
+                totalAns += item.total;
+                sumRate += (item.correct / item.total);
+                if (item.maxCombo && item.maxCombo > globalMaxCombo) globalMaxCombo = item.maxCombo;
+            });
+
+            const avgRate = history.length > 0 ? Math.round((sumRate / history.length) * 100) : 0;
+
+            document.getElementById('stat-total-ans').innerText = totalAns;
+            document.getElementById('stat-avg-rate').innerText = `${avgRate}%`;
+            document.getElementById('stat-max-combo').innerText = globalMaxCombo;
+
+            const listEl = document.getElementById('history-list');
+            if (history.length === 0) {
+                listEl.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">尚無刷題紀錄，快去完成一次試題吧！</div>`;
+                return;
+            }
+
+            const modeNames = { 'practice': '即時練習', 'exam': '模擬測驗', 'speed': '⚡10秒快答' };
+
+            listEl.innerHTML = history.map(item => `
+                <div class="p-4 flex justify-between items-center text-xs">
+                    <div>
+                        <div class="font-black text-white flex items-center space-x-2">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">測驗紀錄</span>
+                            <span>${modeNames[item.mode] || '即時練習'}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 mt-1">${item.date}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-black text-amber-400 text-sm">${item.score} 分</div>
+                        <div class="text-[10px] text-slate-400">答對 ${item.correct}/${item.total} 題</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (confirm('確定要清除所有練習歷史紀錄嗎？')) {
+                localStorage.removeItem('law_quiz_glass_history_v10');
+                renderStats();
+            }
+        }
+
+        // --- 7. 題庫管理功能 ---
+        function renderBankList() {
+            const container = document.getElementById('bank-list-container');
+            let html = '';
+
+            quizData.forEach((q, idx) => {
+                html += `
+                    <div class="p-3 bg-slate-900/60 border border-white/10 rounded-2xl flex justify-between items-start space-x-3 text-xs">
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-0.5 rounded-full font-black border bg-indigo-500/20 text-indigo-300 border-indigo-500/30">題號 #${idx + 1}</span>
+                                <span class="font-black text-amber-400">答案: ${['A','B','C','D'][q.answer]}</span>
+                            </div>
+                            <div class="font-black text-white">${q.question}</div>
+                            <div class="text-slate-400 font-light">解析: ${q.explanation || '無'}</div>
+                        </div>
+                        <button onclick="deleteQuestion(${idx})" class="text-slate-500 hover:text-rose-400 p-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('bank-total-count').innerText = quizData.length;
+            container.innerHTML = html || '<div class="text-center py-6 text-slate-500 text-xs">目前題庫完全為空，請手動新增或匯入題目</div>';
+        }
+
+        function handleAddQuestion(e) {
+            e.preventDefault();
+            const qtext = document.getElementById('add-qtext').value;
+            const opt0 = document.getElementById('add-opt0').value;
+            const opt1 = document.getElementById('add-opt1').value;
+            const opt2 = document.getElementById('add-opt2').value;
+            const opt3 = document.getElementById('add-opt3').value;
+            const answer = parseInt(document.getElementById('add-answer').value);
+            const explain = document.getElementById('add-explain').value;
+
+            const newQ = {
+                id: 'custom_' + Date.now(),
+                question: qtext,
+                options: [opt0, opt1, opt2, opt3],
+                answer: answer,
+                explanation: explain
+            };
+
+            quizData.push(newQ);
+            saveQuizData();
+            document.getElementById('add-question-form').reset();
+            alert('成功加入至題庫！');
+            renderBankList();
+        }
+
+        function deleteQuestion(idx) {
+            if (confirm('確定要刪除此題目嗎？')) {
+                quizData.splice(idx, 1);
+                saveQuizData();
+                renderBankList();
+            }
+        }
+
+        function saveQuizData() {
+            localStorage.setItem('law_quiz_glass_data_v10', JSON.stringify(quizData));
+        }
+
+        function resetDefaultBank() {
+            if (confirm('確定要恢復為基礎示範題庫嗎？')) {
+                quizData = defaultQuizData;
+                saveQuizData();
+                renderBankList();
+            }
+        }
+
+        function exportQuestions() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(quizData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "law_quiz_data.json");
+            dlAnchorElem.click();
+        }
+
+        function importQuestions(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        quizData = importedData;
+                        saveQuizData();
+                        renderBankList();
+                        alert('題庫匯入成功！');
+                    } else {
+                        alert('JSON 格式不符！');
+                    }
+                } catch(err) {
+                    alert('讀取失敗，請確認檔案格式是否正確。');
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+    </script>
 </body>
 </html>
+```e-o-f
+
