@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>法律達人競賽刷題酷 | JSON範例與動態載入版</title>
+    <title>法律達人競賽刷題酷 | 全平台字體與表情符號修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入芫荽體官方字型檔 -->
     <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
@@ -21,25 +21,18 @@
         }
 
         /* --------------------------------------------------
-           全域與行動裝置強制套用芫荽體 (Iansui)
+           手機與電腦全平台字體（芫荽體 + 彩色表情符號支援）
         -------------------------------------------------- */
-        *, *::before, *::after, html, body, div, span, applet, object, iframe,
-        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-        a, abbr, acronym, address, big, cite, code,
-        del, dfn, em, img, ins, kbd, q, s, samp,
-        small, strike, strong, sub, sup, tt, var,
-        b, u, i, center,
-        dl, dt, dd, ol, ul, li,
-        fieldset, form, label, legend,
-        table, caption, tbody, tfoot, thead, tr, th, td,
-        article, aside, canvas, details, embed, 
-        figure, figcaption, footer, header, hgroup, 
-        menu, nav, output, ruby, section, summary,
-        time, mark, audio, video, input, button, select, textarea, option {
-            font-family: 'Iansui', -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif !important;
+        html, body, p, h1, h2, h3, h4, h5, h6, span, button, input, select, textarea, label, div, a {
+            font-family: 'Iansui', -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
+        }
+
+        /* 保護 FontAwesome 圖示不受字型覆蓋影響 */
+        .fa, .fas, .far, .fal, .fad, .fab, [class*="fa-"] {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
         }
 
         body {
@@ -53,6 +46,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* 夢幻藍紫動態背景 */
         .bg-canvas {
             position: fixed;
             top: 0; left: 0;
@@ -78,6 +72,7 @@
             to { transform: translate(120px, 60px) scale(1.25); }
         }
 
+        /* 標題流動光影 */
         .shimmer-text {
             background: linear-gradient(120deg, #fff 20%, #818cf8 40%, #c084fc 60%, #fff 80%);
             background-size: 200% auto;
@@ -90,6 +85,7 @@
             to { background-position: 200% center; }
         }
 
+        /* 液態玻璃感 (Liquid Glassmorphism 90% 不透明度) */
         .glass-card {
             background: rgba(15, 23, 42, 0.90);
             backdrop-filter: blur(25px);
@@ -99,6 +95,7 @@
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
+        /* 按鈕特化玻璃感 */
         .glass-btn {
             background: rgba(255, 255, 255, 0.06);
             backdrop-filter: blur(10px);
@@ -110,6 +107,7 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
+        /* 視差粒子 */
         .particle {
             position: fixed;
             background: white;
@@ -119,6 +117,7 @@
             z-index: -1;
         }
 
+        /* 答錯震動效果 */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-10px); }
@@ -128,6 +127,7 @@
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
 
+        /* 淡入動畫 */
         .animate-fade-in {
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -136,6 +136,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* 客製化滾動條 */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 10px; }
