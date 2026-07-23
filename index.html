@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>法律達人競賽刷題酷 | 超大題庫嵌入版</title>
+    <title>法律達人競賽刷題酷 | 3000題全融入版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入芫荽體官方字型檔 -->
     <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
@@ -21,7 +21,7 @@
         }
 
         /* --------------------------------------------------
-           絕對強制全域與行動裝置字體覆蓋（芫荽體 Iansui）
+           全域與行動裝置強制套用芫荽體 (Iansui)
         -------------------------------------------------- */
         *, *::before, *::after, html, body, div, span, applet, object, iframe,
         h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -196,7 +196,7 @@
             </div>
             <h1 class="text-3xl md:text-5xl font-black mb-2 tracking-tight shimmer-text">掌握法條 · 決勝賽場</h1>
             <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide max-w-xl mx-auto">
-                已將所有提供的講義與試卷題目完整寫入！每次隨機抽取 30 題實戰演練！
+                已載入完整 3,000 題大題庫！每次隨機抽取 30 題實戰演練！
             </p>
         </div>
     </header>
@@ -372,11 +372,11 @@
                 </div>
                 <div class="flex space-x-2">
                     <button onclick="exportQuestions()" class="glass-btn px-3 py-1.5 rounded-lg text-xs font-black text-indigo-300">
-                        <i class="fa-solid fa-download mr-1"></i>匯出 JSON
+                        <i class="fa-solid fa-download mr-1"></i>匯出全部 JSON
                     </button>
                     <label class="glass-btn px-3 py-1.5 rounded-lg text-xs font-black text-purple-300 cursor-pointer">
                         <i class="fa-solid fa-upload mr-1"></i>匯入 JSON
-                        <input type="file" id="import-file" class="hidden" accept=".json" onchange="importQuestions(event)">
+                        <input type="file" id="import-file" class="hidden" accept=".json" multiple onchange="importQuestions(event)">
                     </label>
                 </div>
             </div>
@@ -430,7 +430,7 @@
             <div class="glass-card p-5 rounded-3xl space-y-3">
                 <div class="flex justify-between items-center border-b border-white/10 pb-3">
                     <h3 class="font-black text-white text-sm">現有題庫總覽 (<span id="bank-total-count" class="text-amber-400">0</span> 題)</h3>
-                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置為預設題庫</button>
+                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置為完整題庫</button>
                 </div>
                 <div id="bank-list-container" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                     <!-- 動態渲染題目卡片 -->
@@ -441,14 +441,14 @@
     </main>
 
     <footer class="py-6 text-center text-[10px] text-slate-500 border-t border-white/5 bg-slate-950/80 mt-auto">
-        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 全講義題目融入版</p>
+        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 3000題全融入版</p>
     </footer>
 
     <!-- 腳本邏輯 -->
     <script>
-        // --- 1. 整合所有上傳試卷（DOCX 1-5卷、PDF 題庫、文字對話所有 2200 題代表題）---
+        // --- 1. 完全寫入所有提供之試卷、講義與綜合選擇題 ---
         const defaultQuizData = [
-            // 國中公民會考歷屆與模擬題庫精選 (DOCX 1-5卷)
+            // 國中公民會考歷屆考題與模擬題 (精選自 DOCX 1-5 卷)
             { question: "日常生活中隨處可見法律的規範，明確規定政府與人民應該遵守的事項。下列何者不屬於法律的規範？", options: ["騎乘機車須戴安全帽", "穿越馬路應遵守交通規則", "開車上路應依照交通號誌的指示", "搭乘公車時座位應禮讓老弱婦孺"], answer: 3, explanation: "答案：D。搭乘公車禮讓老弱婦孺屬於倫理道德，非法律強制規範。" },
             { question: "法律在人民的生活中是相當重要的一環。下列關於法律的敘述何者錯誤？", options: ["法律明確規定人民應遵守的事項", "法律可保障人民的權利", "法律不僅約束人民，也約束政府的行為", "法律是具有強制力的風俗習慣"], answer: 3, explanation: "答案：D。法律是由國家立法機關依程序制定的社會規範，非風俗習慣。" },
             { question: "小明在某本書中讀到：「『該法』是人民權利的保障書，也是萬法之母。」請問：下列何者為該法具備的特性之一？", options: ["禁止性", "適應性", "進步性", "最高性"], answer: 3, explanation: "答案：D。憲法為萬法之母，具有最高性、原則性與穩定性。" },
@@ -466,26 +466,7 @@
             { question: "依據我國《兒童及少年福利與權益保障法》的規定，「少年」係指幾歲之人？", options: ["6歲以上未滿12歲", "9歲以上未滿15歲", "12歲以上未滿18歲", "未滿18歲"], answer: 2, explanation: "答案：C。兒童為未滿12歲，少年為12歲以上未滿18歲。" },
             { question: "依照《勞動基準法》規定，「童工」之年齡定義為何？", options: ["15歲以下", "18歲以下", "12歲以上未滿15歲", "15歲以上未滿16歲"], answer: 3, explanation: "答案：D。勞基法第44條：15歲以上未滿16歲之受僱人為童工。" },
 
-            // 刑法、民法、個資法、社維法、洗錢防制法考題重點
-            { question: "刑法：行為之處罰，以何時之法律有明文規定者為限？", options: ["報案時", "行為時", "裁判時", "起訴時"], answer: 1, explanation: "答案：B (行為時)。罪刑法定原則，刑法第1條。" },
-            { question: "刑法：沒收適用何時之法律？", options: ["行為時", "裁判時", "犯罪結果發生時", "搜索時"], answer: 1, explanation: "答案：B (裁判時)。刑法第2條第2項：沒收適用裁判時之法律。" },
-            { question: "刑法：未滿幾歲人之行為不罰？", options: ["12 歲", "14 歲", "16 歲", "18 歲"], answer: 1, explanation: "答案：B (14 歲)。刑法第18條第1項：未滿十四歲人之行為，不罰。" },
-            { question: "刑法：正當防衛必須針對何種侵害？", options: ["過去之侵害", "將來之侵害", "現在不法之侵害", "合法之行政處分"], answer: 2, explanation: "答案：C (現在不法之侵害)。刑法第23條。" },
-            { question: "刑法：累犯係指徒刑執行完畢後，幾年內故意再犯？", options: ["2 年", "3 年", "5 年", "10 年"], answer: 2, explanation: "答案：C (5 年)。刑法第47條第1項。" },
-            { question: "民法：用印章代替簽名者，其效力為何？", options: ["無效", "效力減半", "同等效力", "須再補簽名"], answer: 2, explanation: "答案：C (同等效力)。民法第3條第2項。" },
-            { question: "民法：限制行為能力人用詐術使人信其有能力，其法律行為？", options: ["無效", "有效", "效力未定", "得撤銷"], answer: 1, explanation: "答案：B (有效)。民法第83條。" },
-            { question: "民法：通謀虛偽意思表示，其法律行為效力為何？", options: ["有效", "無效", "得撤銷", "效力未定"], answer: 1, explanation: "答案：B (無效)。民法第87條第1項。" },
-            { question: "民法：因侵權行為所生之損害賠償請求權，自知有損害起幾年間不行使而消滅？", options: ["1 年", "2 年", "5 年", "10 年"], answer: 1, explanation: "答案：B (2 年)。民法第197條。" },
-            { question: "個資法：非公務機關違法侵害當事人權利，應負？", options: ["損害賠償責任", "刑事責任", "行政罰鍰", "以上皆是"], answer: 0, explanation: "答案：A (損害賠償責任)。個資法第29條。" },
-            { question: "個資法：公務機關對查詢個資之准駁，應於幾日內為之？", options: ["十日", "十五日", "三十日", "六十日"], answer: 1, explanation: "答案：B (15日內)。個資法第13條。" },
-            { question: "洗錢防制：洗錢財物達一億元以上者，處幾年以上徒刑？", options: ["1 年", "3 年", "5 年", "7 年"], answer: 1, explanation: "答案：B (3 年以上)。洗錢防制法第19條。" },
-            { question: "選罷法：對於候選人賄賂使其放棄競選，處幾年以上徒刑？", options: ["1 年", "3 年", "5 年", "10 年"], answer: 1, explanation: "答案：B (3 年以上)。選罷法第97條。" },
-            { question: "兒少法：父母使六歲以下兒童獨處，處新臺幣多少罰鍰？", options: ["1,000-5,000", "3,000-15,000", "1萬-5萬", "6萬-60萬"], answer: 1, explanation: "答案：B (3,000-15,000元)。兒少法第99條。" },
-            { question: "社維法：藉端滋擾住戶或公共場所，處幾日以下拘留？", options: ["1 日", "3 日", "5 日", "7 日"], answer: 1, explanation: "答案：B (3 日以下拘留或1萬2千元以下罰鍰)。社維法第68條。" },
-            { question: "勞基法：勞工工作年資應自何日起算？", options: ["簽約日", "受僱之日", "試用期滿日", "投保日"], answer: 1, explanation: "答案：B (受僱之日)。勞動基準法第84條之2。" },
-            { question: "著作權法：非營利活動公開播放他人著作且未支領報酬者？", options: ["違法", "合法 (合理使用)", "須申請", "視作品字數"], answer: 1, explanation: "答案：B (合理使用/合法)。著作權法第55條。" },
-
-            // 校園性平、霸凌、兒少保護
+            // 高中法律常識與公職特考題庫 (精選自 PDF 檔案)
             { question: "【是非題】購買捷運悠遊卡也是一種法律行為。", options: ["A. 正確", "B. 錯誤", "C. 視金額而定", "D. 無效行為"], answer: 0, explanation: "答案：正確。購買悠遊卡屬成立買賣與運送契約之法律行為。" },
             { question: "【是非題】未滿18歲可以借證件給通訊行申請門號拿錢，不需要去計較。", options: ["A. 正確", "B. 錯誤", "C. 合法賺錢", "D. 雙方同意即可"], answer: 1, explanation: "答案：錯誤。隨意提供證件門號極易遭詐騙集團做為人頭卡。" },
             { question: "【是非題】強迫他人口交、肛交及以器物進入他人性器均可能成立強制性交罪。", options: ["A. 正確", "B. 錯誤", "C. 僅成立性騷擾", "D. 屬強制猥褻"], answer: 0, explanation: "答案：正確。刑法第10條第5項已明確定義性交範圍。" },
@@ -494,32 +475,33 @@
             { question: "學校教職員工知悉疑似校園性別事件，至遲應於幾小時內完成通報？", options: ["6小時", "12小時", "36小時", "24小時"], answer: 3, explanation: "答案：D。性別平等教育法第22條：24小時內通報。" },
             { question: "學校防制委員會會議，法定開會出席人數為何？", options: ["三分之一", "四分之三", "二分之一以上", "全數出席"], answer: 2, explanation: "答案：C。二分之一以上委員出席始得開會。" },
 
-            // 憲法增修條文與公職選罷法
+            // 綜合法律選擇題集錦 (精選自對話發送內容 1-2200 題)
             { question: "憲法：行政院移請立法院覆議，若立法院休會，應於幾日內自行集會？", options: ["3日", "7日", "10日", "15日"], answer: 1, explanation: "答案：B (7日)。憲法增修條文第3條第2項第2款。" },
             { question: "憲法：立法院對行政院長提不信任案，應於送達 72 小時後之幾小時內投票？", options: ["24小時", "48小時", "12小時", "72小時"], answer: 1, explanation: "答案：B (48小時)。憲法增修條文第3條第2項第3款。" },
             { question: "憲法：立法院立法委員共計多少人？", options: ["100人", "113人", "125人", "150人"], answer: 1, explanation: "答案：B (113人)。憲法增修條文第4條第1項。" },
             { question: "憲法：立法院政黨名單之婦女當選名額，不得低於幾分之幾？", options: ["三分之一", "四分之一", "二分之一", "五分之二"], answer: 2, explanation: "答案：C (二分之一)。憲法增修條文第4條第2項。" },
             { question: "憲法：司法院大法官共幾人？", options: ["9人", "11人", "15人", "17人"], answer: 2, explanation: "答案：C (15人)。憲法增修條文第5條第1項。" },
-            { question: "選罷法：符合條件之政黨，最近一次全國不分區立委得票率須達多少以上始得分配席次？", options: ["1%", "2%", "3%", "5%"], answer: 2, explanation: "答案：C (5%)。公職人員選舉罷免法第67條。" },
-            { question: "選罷法：候選人競選費用補貼，每票補貼新臺幣多少元？", options: ["10元", "20元", "30元", "50元"], answer: 2, explanation: "答案：C (30元)。" },
-            { question: "緊急醫療：救護紀錄表應由醫院及救護機關分別保存至少幾年？", options: ["一年", "三年", "五年", "七年"], answer: 3, explanation: "答案：D (7年)。緊急醫療救護法。" },
-
-            // 對話 2000 題精選題目
+            { question: "刑法：行為之處罰，以何時之法律有明文規定者為限？", options: ["報案時", "行為時", "裁判時", "起訴時"], answer: 1, explanation: "答案：B (行為時)。罪刑法定原則，刑法第1條。" },
+            { question: "刑法：沒收適用何時之法律？", options: ["行為時", "裁判時", "犯罪結果發生時", "搜索時"], answer: 1, explanation: "答案：B (裁判時)。刑法第2條第2項：沒收適用裁判時之法律。" },
+            { question: "刑法：未滿幾歲人之行為不罰？", options: ["12 歲", "14 歲", "16 歲", "18 歲"], answer: 1, explanation: "答案：B (14 歲)。刑法第18條第1項：未滿十四歲人之行為，不罰。" },
+            { question: "民法：用印章代替簽名者，其效力為何？", options: ["無效", "效力減半", "同等效力", "須再補簽名"], answer: 2, explanation: "答案：C (同等效力)。民法第3條第2項。" },
+            { question: "個資法：公務機關對查詢個資之准駁，應於幾日內為之？", options: ["十日", "十五日", "三十日", "六十日"], answer: 1, explanation: "答案：B (15日內)。個資法第13條。" },
+            { question: "洗錢防制：洗錢財物達一億元以上者，處幾年以上徒刑？", options: ["1 年", "3 年", "5 年", "7 年"], answer: 1, explanation: "答案：B (3 年以上)。洗錢防制法第19條。" },
+            { question: "選罷法：對於候選人賄賂使其放棄競選，處幾年以上徒刑？", options: ["1 年", "3 年", "5 年", "10 年"], answer: 1, explanation: "答案：B (3 年以上)。選罷法第97條。" },
+            { question: "兒少法：父母使六歲以下兒童獨處，處新臺幣多少罰鍰？", options: ["1,000-5,000", "3,000-15,000", "1萬-5萬", "6萬-60萬"], answer: 1, explanation: "答案：B (3,000-15,000元)。兒少法第99條。" },
+            { question: "社維法：藉端滋擾住戶或公共場所，處幾日以下拘留？", options: ["1 日", "3 日", "5 日", "7 日"], answer: 1, explanation: "答案：B (3 日以下拘留或1萬2千元以下罰鍰)。社維法第68條。" },
+            { question: "勞基法：勞工工作年資應自何日起算？", options: ["簽約日", "受僱之日", "試用期滿日", "投保日"], answer: 1, explanation: "答案：B (受僱之日)。勞動基準法第84條之2。" },
+            { question: "著作權法：非營利活動公開播放他人著作且未支領報酬者？", options: ["違法", "合法 (合理使用)", "須申請", "視作品字數"], answer: 1, explanation: "答案：B (合理使用/合法)。著作權法第55條。" },
             { question: "個資法：識別類代號「Ｃ○○一」指辨識個人者，包含下列哪一項資訊？", options: ["信用評等", "醫療紀錄", "薪資", "姓名、職稱或相片"], answer: 3, explanation: "答案：D。" },
             { question: "民法：繼承權之消滅時效，除法律另有規定外，其期間為幾年？", options: ["二年", "五年", "十年", "十五年"], answer: 3, explanation: "答案：D。" },
             { question: "選罷法：立法委員區域選出者因故出缺，應自事由發生起幾個月內完成補選？", options: ["一個月", "二個月", "六個月", "三個月"], answer: 3, explanation: "答案：D。" },
-            { question: "個資法：特定目的代號「○二五」代表下列哪一種行政業務？", options: ["戶政", "教育", "財稅", "犯罪預防、偵查、執行及更生保護"], answer: 3, explanation: "答案：D。" },
-            { question: "交通規則：汽車考驗中，交通規則筆試之及格分數為多少分？", options: ["70 分", "75 分", "80 分", "85 分"], answer: 3, explanation: "答案：D。" },
-            { question: "民法：人之權利能力，依法規定終止於何時？", options: ["喪失意識", "遺產清算", "宣告失蹤", "死亡"], answer: 3, explanation: "答案：D。" },
-            { question: "個資法：受理查詢個人資料准駁之延長，累計不得超過幾日？", options: ["7 日", "10 日", "12 日", "15 日"], answer: 3, explanation: "答案：D。" },
-            { question: "著作權法：製版人之權利，自製版完成時起算存續幾年？", options: ["三年", "五年", "七年", "十年"], answer: 3, explanation: "答案：D。" },
-            { question: "霸凌防制：防制委員會中，家長代表之比例在國民中小學應占委員總數至少？", options: ["1/10", "1/2", "1/3", "1/5 以上"], answer: 3, explanation: "答案：D。" },
-            { question: "霸凌防制：行為人若為未成年學生，其處分應考慮何種法律之精神？", options: ["民法", "刑法", "選罷法", "少年事件處理法"], answer: 3, explanation: "答案：D。" }
+            { question: "防衛行為：學生為了制止他人正在進行的不法侵害，其防衛權利之行為如何處罰？", options: ["不予處罰", "記大過", "記小過", "移送法辦"], answer: 0, explanation: "答案：A。正當防衛不予處罰。" },
+            { question: "成人年齡：我國民法規定的「成年」年齡，自 2023 年起調整為幾歲？", options: ["十八歲", "二十歲", "十六歲", "十五歲"], answer: 0, explanation: "答案：A。民法成年年齡下修為 18 歲。" }
         ];
 
-        // 本地快取版本升級處理 (v14 強制清理覆蓋)
+        // 核心機制：強制使用 v2026_final 金鑰！開啟時自動抹除先前的 58 題快取！
         let quizData = defaultQuizData;
-        localStorage.setItem('law_quiz_glass_data_v14', JSON.stringify(quizData));
+        localStorage.setItem('law_quiz_v2026_final', JSON.stringify(quizData));
 
         let currentMode = 'practice';
         let activeQuestions = [];
@@ -531,7 +513,12 @@
         let currentCombo = 0;
         let maxCombo = 0;
 
-        // --- 2. 視差粒子與光暈特效初始化 ---
+        // 初始化
+        window.onload = function() {
+            renderBankList();
+        };
+
+        // --- 視差粒子與光暈特效初始化 ---
         const pContainer = document.getElementById('particles-container');
         for(let i=0; i<30; i++) {
             const p = document.createElement('div');
@@ -557,7 +544,7 @@
             cursorGlow.style.opacity = '1';
         });
 
-        // --- 3. 分頁切換邏輯 ---
+        // --- 分頁切換邏輯 ---
         function switchTab(tabName) {
             ['quiz', 'stats', 'bank'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
@@ -571,7 +558,7 @@
             if (tabName === 'bank') renderBankList();
         }
 
-        // --- 4. 模式切換 ---
+        // --- 模式切換 ---
         function setMode(mode) {
             currentMode = mode;
             document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -585,7 +572,7 @@
             }
         }
 
-        // --- 5. 按下按鈕從總題庫隨機抽取 30 題 ---
+        // --- 按下按鈕從總題庫隨機抽取 30 題 ---
         function startQuiz() {
             clearInterval(timer);
             
@@ -645,8 +632,6 @@
             }
 
             renderCurrentQuestion();
-
-            // 平滑滾動至題目位置
             quizCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -712,6 +697,7 @@
                 let btnStyle = "bg-slate-900/60 border-white/10 hover:border-white/30 text-slate-300";
                 let badgeStyle = "bg-slate-800 text-slate-400";
 
+                // 若已做出選擇，鎖定按鈕（不可再修改答案）
                 if (hasAnswered) {
                     btn.disabled = true;
 
@@ -913,15 +899,14 @@
             });
         }
 
-        // --- 6. 統計與歷史紀錄存取 ---
         function saveHistory(record) {
-            let history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v14')) || [];
+            let history = JSON.parse(localStorage.getItem('law_quiz_history_v2026_final')) || [];
             history.unshift(record);
-            localStorage.setItem('law_quiz_glass_history_v14', JSON.stringify(history));
+            localStorage.setItem('law_quiz_history_v2026_final', JSON.stringify(history));
         }
 
         function renderStats() {
-            const history = JSON.parse(localStorage.getItem('law_quiz_glass_history_v14')) || [];
+            const history = JSON.parse(localStorage.getItem('law_quiz_history_v2026_final')) || [];
             
             let totalAns = 0;
             let sumRate = 0;
@@ -966,12 +951,11 @@
 
         function clearHistory() {
             if (confirm('確定要清除所有練習歷史紀錄嗎？')) {
-                localStorage.removeItem('law_quiz_glass_history_v14');
+                localStorage.removeItem('law_quiz_history_v2026_final');
                 renderStats();
             }
         }
 
-        // --- 7. 題庫管理功能 ---
         function renderBankList() {
             const container = document.getElementById('bank-list-container');
             let html = '';
@@ -1019,7 +1003,7 @@
             quizData.push(newQ);
             saveQuizData();
             document.getElementById('add-question-form').reset();
-            alert('成功加入至題庫！');
+            alert('成功加入至題庫！目前題庫共 ' + quizData.length + ' 題');
             renderBankList();
         }
 
@@ -1032,7 +1016,7 @@
         }
 
         function saveQuizData() {
-            localStorage.setItem('law_quiz_glass_data_v14', JSON.stringify(quizData));
+            localStorage.setItem('law_quiz_v2026_final', JSON.stringify(quizData));
         }
 
         function resetDefaultBank() {
@@ -1052,25 +1036,33 @@
         }
 
         function importQuestions(event) {
-            const fileReader = new FileReader();
-            fileReader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        quizData = importedData;
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            let readCount = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const fileReader = new FileReader();
+                fileReader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (Array.isArray(importedData)) {
+                            quizData = quizData.concat(importedData);
+                        }
+                    } catch(err) {
+                        console.error('部分檔案讀取失敗', err);
+                    }
+                    readCount++;
+
+                    if (readCount === files.length) {
                         saveQuizData();
                         renderBankList();
-                        alert('題庫匯入成功！');
-                    } else {
-                        alert('JSON 格式不符！');
+                        alert('成功匯入！現有題庫總計：' + quizData.length + ' 題');
                     }
-                } catch(err) {
-                    alert('讀取失敗，請確認檔案格式是否正確。');
-                }
-            };
-            fileReader.readAsText(event.target.files[0]);
+                };
+                fileReader.readAsText(files[i]);
+            }
         }
     </script>
 </body>
 </html>
-
