@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>法律達人競賽刷題酷 | 3000題完整題庫版 |v2.0</title>
+    <title>法律達人競賽刷題酷 | JSON範例與動態載入版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入芫荽體官方字型檔 -->
     <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
@@ -53,7 +53,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 夢幻藍紫動態背景 */
         .bg-canvas {
             position: fixed;
             top: 0; left: 0;
@@ -79,7 +78,6 @@
             to { transform: translate(120px, 60px) scale(1.25); }
         }
 
-        /* 標題流動光影 */
         .shimmer-text {
             background: linear-gradient(120deg, #fff 20%, #818cf8 40%, #c084fc 60%, #fff 80%);
             background-size: 200% auto;
@@ -92,7 +90,6 @@
             to { background-position: 200% center; }
         }
 
-        /* 液態玻璃感 (Liquid Glassmorphism 90% 不透明度) */
         .glass-card {
             background: rgba(15, 23, 42, 0.90);
             backdrop-filter: blur(25px);
@@ -102,7 +99,6 @@
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        /* 按鈕特化玻璃感 */
         .glass-btn {
             background: rgba(255, 255, 255, 0.06);
             backdrop-filter: blur(10px);
@@ -114,7 +110,6 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* 視差粒子 */
         .particle {
             position: fixed;
             background: white;
@@ -124,7 +119,6 @@
             z-index: -1;
         }
 
-        /* 答錯震動效果 */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-10px); }
@@ -134,7 +128,6 @@
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
 
-        /* 淡入動畫 */
         .animate-fade-in {
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -143,7 +136,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 客製化滾動條 */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 10px; }
@@ -188,16 +180,24 @@
     </nav>
 
     <!-- 頁頭 Hero 區 -->
-    <header class="relative py-6 md:py-10 px-4 text-center overflow-hidden">
-        <div class="max-w-4xl mx-auto">
-            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 mb-3 backdrop-blur-md">
+    <header class="relative py-6 md:py-8 px-4 text-center overflow-hidden">
+        <div class="max-w-4xl mx-auto space-y-3">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 backdrop-blur-md">
                 <span class="w-2 h-2 bg-indigo-400 rounded-full animate-ping"></span>
                 <span class="text-[10px] md:text-xs font-black tracking-widest text-indigo-300 uppercase">2026 法律達人競賽備戰系統</span>
             </div>
-            <h1 class="text-3xl md:text-5xl font-black mb-2 tracking-tight shimmer-text">掌握法條 · 決勝賽場</h1>
-            <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide max-w-xl mx-auto">
-                已預設匯入全量講義與試卷題庫！每次隨機抽取 30 題實戰演練！
-            </p>
+            <h1 class="text-3xl md:text-5xl font-black tracking-tight shimmer-text">掌握法條 · 決勝賽場</h1>
+
+            <!-- 實時狀態檢測儀表板 -->
+            <div class="glass-card p-3.5 rounded-2xl max-w-lg mx-auto flex justify-between items-center text-xs border border-indigo-500/30">
+                <div class="flex items-center space-x-2">
+                    <span id="status-indicator" class="w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping"></span>
+                    <span id="status-text" class="text-slate-300 font-bold">正在讀取題庫 JSON 檔...</span>
+                </div>
+                <div class="font-black text-amber-400 text-sm md:text-base">
+                    <span id="header-bank-count">0</span> 題
+                </div>
+            </div>
         </div>
     </header>
 
@@ -430,7 +430,7 @@
             <div class="glass-card p-5 rounded-3xl space-y-3">
                 <div class="flex justify-between items-center border-b border-white/10 pb-3">
                     <h3 class="font-black text-white text-sm">現有題庫總覽 (<span id="bank-total-count" class="text-amber-400">0</span> 題)</h3>
-                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置為預設完整題庫</button>
+                    <button onclick="scanAndLoadGitHubJsonFiles()" class="text-xs text-indigo-400 hover:underline font-black">重新連線讀取 GitHub JSON</button>
                 </div>
                 <div id="bank-list-container" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                     <!-- 動態渲染題目卡片 -->
@@ -441,296 +441,11 @@
     </main>
 
     <footer class="py-6 text-center text-[10px] text-slate-500 border-t border-white/5 bg-slate-950/80 mt-auto">
-        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 完整大題庫自動載入版</p>
+        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · JSON動態全自動載入版</p>
     </footer>
 
     <!-- 腳本邏輯 -->
     <script>
-        // 版本控管 Key：確保舊有的 58 題暫存會被自動清理覆蓋
-        const CURRENT_VERSION = 'law_quiz_v2026_master_all';
-
-        // --- 1. 完全寫入所有提供之試卷、講義與綜合選擇題 ---
-        const defaultQuizData = [
-    
-{
-"question": "日常生活中隨處可見法律的規範，明確規定政府與人民應該遵守的事項。下列何者不屬於法律的規範？",
-"options": ["騎乘機車須戴安全帽", "穿越馬路應遵守交通規則", "開車上路應依照交通號誌的指示", "搭乘公車時座位應禮讓老弱婦孺"],
-"answer": 3,
-"explanation": "答案：D。搭乘公車禮讓老弱婦孺屬於倫理道德，非法律強制規範。"
-},
-{
-"question": "法律在人民的生活中，是相當重要的一環。下列關於法律的敘述，何者錯誤？",
-"options": ["法律明確規定人民應遵守的事項", "法律可保障人民的權利", "法律不僅約束人民，也約束政府的行為", "法律是具有強制力的風俗習慣"],
-"answer": 3,
-"explanation": "答案：D。法律是由國家立法機關依程序制定的社會規範，非風俗習慣。"
-},
-{
-"question": "小明在某本書中讀到：「『該法』是人民權利的保障書，也是萬法之母。」請問：下列何者為該法具備的特性之一？",
-"options": ["禁止性", "適應性", "進步性", "最高性"],
-"answer": 3,
-"explanation": "答案：D。憲法為萬法之母，具有最高性、原則性與穩定性。"
-},
-{
-"question": "《憲法》的修改為求慎重與周延，修改程序最為嚴格。這是《憲法》的何種特性？",
-"options": ["最高性", "穩定性 (固定性)", "原則性", "一般性"],
-"answer": 1,
-"explanation": "答案：B。憲法修改程序繁複嚴格，彰顯其穩定性與固定性。"
-},
-{
-"question": "張先生最近剛完成一項判決主文，對於某一法律是否牴觸我國《憲法》作出裁判宣告。張先生最可能擔任下列何種職務？",
-"options": ["總統", "行政院院長", "大法官", "立法委員"],
-"answer": 2,
-"explanation": "答案：C。司法院大法官組成憲法法庭審理法規範違憲審查。"
-},
-{
-"question": "我國《憲法》規定：「人民有受國民教育之權利與義務。」條文內容簡單揭露國教政策，具體細節交由《國民教育法》規定。此為何種特性？",
-"options": ["最高性", "固定性", "原則性", "穩定性"],
-"answer": 2,
-"explanation": "答案：C。憲法條文簡明扼要，僅做原則性規範。"
-},
-{
-"question": "人民針對已通過的法律或政策，表示同意或反對的權利，是指下列何者？",
-"options": ["選舉權", "罷免權", "創制權", "複決權"],
-"answer": 3,
-"explanation": "答案：D。複決權是指人民針對已通過之法律或政策行使同意或反對投票。"
-},
-{
-"question": "下列何種行為符合《民法》的「誠實信用」原則？",
-"options": ["泡麵廠商將快到期的食品擺放在惜食區，並以海報清楚提醒", "為擴建高速公路，政府強制徵收私人土地", "《菸害防制法》上路前，在公共場所吸菸者不罰", "購買電器，使用前應詳細閱讀說明書"],
-"answer": 0,
-"explanation": "答案：A。商家明確標示商品資訊，符合誠實信用原則。"
-},
-{
-"question": "依《民法》規定，14歲的小胖在法律上屬於何種行為能力人？",
-"options": ["限制行為能力人", "無行為能力人", "完全行為能力人", "限制責任能力人"],
-"answer": 0,
-"explanation": "答案：A。民法第77條：滿7歲以上之未成年人，有限制行為能力。"
-},
-{
-"question": "「罪刑法定原則」為現代法治國家基石，下列關於此原則之敘述何者正確？",
-"options": ["被告未經審判證明有罪前，應推定其為無罪", "偵辦案件之資料於審判前禁止公開", "行為之處罰，以行為時之法律有明文規定者為限", "按自主意思所締結之契約，國家不得干涉"],
-"answer": 2,
-"explanation": "答案：C。刑法第1條罪刑法定原則。"
-},
-{
-"question": "訴訟上和解成立後所做成的和解筆錄，與下列何者具有相同的效力？",
-"options": ["契約", "命令", "行政處分", "法院確定判決"],
-"answer": 3,
-"explanation": "答案：D。訴訟上和解筆錄與法院確定判決有同一效力。"
-},
-{
-"question": "代表國家追訴犯罪、主動偵查並提起公訴的人員為下列何者？",
-"options": ["警察", "法官", "檢察官", "被害人"],
-"answer": 2,
-"explanation": "答案：C。檢察官代表國家偵查犯罪並提起公訴。"
-},
-{
-"question": "下列何者屬於行政機關對違法行為採取的「行政罰」？",
-"options": ["拘留與罰鍰", "有期徒刑", "沒收財產", "罰金"],
-"answer": 0,
-"explanation": "答案：A。罰鍰、勒令歇業、停止營業、拘留（社維法）等屬行政罰。"
-},
-{
-"question": "當行政處分違法或不當致人民權益受損，人民救濟之標準順序為何？",
-"options": ["調解 → 民事訴訟", "民事訴訟 → 行政訴訟", "請願 → 行政訴訟", "訴願 → 行政訴訟"],
-"answer": 3,
-"explanation": "答案：D。行政救濟程序為先向上級機關提起訴願，不服再提起行政訴訟。"
-},
-{
-"question": "依據我國《兒童及少年福利與權益保障法》的規定，「少年」係指幾歲之人？",
-"options": ["6歲以上未滿12歲", "9歲以上未滿15歲", "12歲以上未滿18歲", "未滿18歲"],
-"answer": 2,
-"explanation": "答案：C。兒童為未滿12歲，少年為12歲以上未滿18歲。"
-},
-{
-"question": "依照《勞動基準法》規定，「童工」之年齡定義為何？",
-"options": ["15歲以下", "18歲以下", "12歲以上未滿15歲", "15歲以上未滿16歲"],
-"answer": 3,
-"explanation": "答案：D。勞基法第44條：15歲以上未滿16歲之受僱人為童工。"
-}[
-{
-"question": "【是非題】購買捷運悠遊卡也是一種法律行為。",
-"options": ["A. 正確", "B. 錯誤", "C. 視金額而定", "D. 無效行為"],
-"answer": 0,
-"explanation": "答案：正確。購買悠遊卡屬成立買賣與運送契約之法律行為。"
-},
-{
-"question": "【是非題】未滿18歲可以借證件給通訊行申請門號拿錢，不需要去計較。",
-"options": ["A. 正確", "B. 錯誤", "C. 合法賺錢", "D. 雙方同意即可"],
-"answer": 1,
-"explanation": "答案：錯誤。隨意提供證件門號極易遭詐騙集團做為人頭卡。"
-},
-{
-"question": "【是非題】強迫他人口交、肛交及以器物進入他人性器均可能成立強制性交罪。",
-"options": ["A. 正確", "B. 錯誤", "C. 僅成立性騷擾", "D. 屬強制猥褻"],
-"answer": 0,
-"explanation": "答案：正確。刑法第10條第5項已明確定義性交範圍。"
-},
-{
-"question": "校園性別事件當事人若為不同學校學生，應由哪一所學校主責調查？",
-"options": ["被害人學校", "教育部", "警察局", "行為人現就讀學校"],
-"answer": 3,
-"explanation": "答案：D。性別平等教育法規定原則由行為人現就讀學校主責調查。"
-},
-{
-"question": "霸凌處理小組訪談學生時，學生有權要求何人陪同？",
-"options": ["法定代理人或現在保護之人", "全體同學", "鄰居", "路人"],
-"answer": 0,
-"explanation": "答案：A。校園霸凌防制準則規定得要求家長或法定代理人陪同。"
-},
-{
-"question": "學校教職員工知悉疑似校園性別事件，至遲應於幾小時內完成通報？",
-"options": ["6小時", "12小時", "36小時", "24小時"],
-"answer": 3,
-"explanation": "答案：D。性別平等教育法第22條：24小時內通報。"
-},
-{
-"question": "學校防制委員會會議，法定開會出席人數為何？",
-"options": ["三分之一", "四分之三", "二分之一以上", "全數出席"],
-"answer": 2,
-"explanation": "答案：C。二分之一以上委員出席始得開會。"
-},
-{
-"question": "有關憲法增修條文位階，下列敘述何者正確？",
-"options": ["憲法增修條文與憲法本文之位階相同", "依據後法優於前法原則，憲法增修條文之位階高於憲法本文", "依據特別法優於普通法原則，憲法增修條文之位階高於憲法本文", "依據憲法保留原則，憲法本文之位階高於憲法增修條文"],
-"answer": 0,
-"explanation": "答案：A。憲法增修條文與憲法本文具同等憲法位階。"
-},
-{
-"question": "依憲法規定，各級政府為扶助學行俱優無力升學之學生，負有下列何種義務？",
-"options": ["應給予免繳納學雜費之優惠", "應廣設獎學金名額", "應給予大學入學之名額保障", "應給予大學入學考試之成績計算優惠"],
-"answer": 1,
-"explanation": "答案：B。憲法第168條規定應廣設獎學金名額。"
-},
-{
-"question": "下列何者並非憲法財產權之保障範圍？",
-"options": ["名譽人格", "商標專用權", "營業自由", "公務員考績獎金"],
-"answer": 0,
-"explanation": "答案：A。名譽人格屬人格權保障範疇，非財產權。"
-}[
-{
-"question": "憲法：行政院移請立法院覆議，若立法院休會，應於幾日內自行集會？",
-"options": ["3日", "7日", "10日", "15日"],
-"answer": 1,
-"explanation": "答案：B (7日)。憲法增修條文第3條第2項第2款。"
-},
-{
-"question": "憲法：立法院對行政院長提不信任案，應於送達 72 小時後之幾小時內投票？",
-"options": ["24小時", "48小時", "12小時", "72小時"],
-"answer": 1,
-"explanation": "答案：B (48小時)。憲法增修條文第3條第2項第3款。"
-},
-{
-"question": "憲法：立法院立法委員共計多少人？",
-"options": ["100人", "113人", "125人", "150人"],
-"answer": 1,
-"explanation": "答案：B (113人)。憲法增修條文第4條第1項。"
-},
-{
-"question": "憲法：立法院政黨名單之婦女當選名額，不得低於幾分之幾？",
-"options": ["三分之一", "四分之一", "二分之一", "五分之二"],
-"answer": 2,
-"explanation": "答案：C (二分之一)。憲法增修條文第4條第2項。"
-},
-{
-"question": "憲法：司法院大法官共幾人？",
-"options": ["9人", "11人", "15人", "17人"],
-"answer": 2,
-"explanation": "答案：C (15人)。憲法增修條文第5條第1項。"
-},
-{
-"question": "選罷法：符合條件之政黨，最近一次全國不分區立委得票率須達多少以上始得分配席次？",
-"options": ["1%", "2%", "3%", "5%"],
-"answer": 2,
-"explanation": "答案：C (5%)。公職人員選舉罷免法第67條。"
-},
-{
-"question": "選罷法：候選人競選費用補貼，每票補貼新臺幣多少元？",
-"options": ["10元", "20元", "30元", "50元"],
-"answer": 2,
-"explanation": "答案：C (30元)。"
-},
-{
-"question": "緊急醫療：救護紀錄表應由醫院及救護機關分別保存至少幾年？",
-"options": ["一年", "三年", "五年", "七年"],
-"answer": 3,
-"explanation": "答案：D (7年)。緊急醫療救護法。"
-},
-{
-"question": "刑法：行為之處罰，以何時之法律有明文規定者為限？",
-"options": ["報案時", "行為時", "裁判時", "起訴時"],
-"answer": 1,
-"explanation": "答案：B (行為時)。罪刑法定原則，刑法第1條。"
-},
-{
-"question": "刑法：沒收適用何時之法律？",
-"options": ["行為時", "裁判時", "犯罪結果發生時", "搜索時"],
-"answer": 1,
-"explanation": "答案：B (裁判時)。刑法第2條第2項：沒收適用裁判時之法律。"
-}[
-{
-"question": "憲法：行政院移請立法院覆議，若立法院休會，應於幾日內自行集會？",
-"options": ["3日", "7日", "10日", "15日"],
-"answer": 1,
-"explanation": "答案：B (7日)。憲法增修條文第3條第2項第2款。"
-},
-{
-"question": "憲法：立法院對行政院長提不信任案，應於送達 72 小時後之幾小時內投票？",
-"options": ["24小時", "48小時", "12小時", "72小時"],
-"answer": 1,
-"explanation": "答案：B (48小時)。憲法增修條文第3條第2項第3款。"
-},
-{
-"question": "憲法：立法院立法委員共計多少人？",
-"options": ["100人", "113人", "125人", "150人"],
-"answer": 1,
-"explanation": "答案：B (113人)。憲法增修條文第4條第1項。"
-},
-{
-"question": "憲法：立法院政黨名單之婦女當選名額，不得低於幾分之幾？",
-"options": ["三分之一", "四分之一", "二分之一", "五分之二"],
-"answer": 2,
-"explanation": "答案：C (二分之一)。憲法增修條文第4條第2項。"
-},
-{
-"question": "憲法：司法院大法官共幾人？",
-"options": ["9人", "11人", "15人", "17人"],
-"answer": 2,
-"explanation": "答案：C (15人)。憲法增修條文第5條第1項。"
-},
-{
-"question": "選罷法：符合條件之政黨，最近一次全國不分區立委得票率須達多少以上始得分配席次？",
-"options": ["1%", "2%", "3%", "5%"],
-"answer": 2,
-"explanation": "答案：C (5%)。公職人員選舉罷免法第67條。"
-},
-{
-"question": "選罷法：候選人競選費用補貼，每票補貼新臺幣多少元？",
-"options": ["10元", "20元", "30元", "50元"],
-"answer": 2,
-"explanation": "答案：C (30元)。"
-},
-{
-"question": "緊急醫療：救護紀錄表應由醫院及救護機關分別保存至少幾年？",
-"options": ["一年", "三年", "五年", "七年"],
-"answer": 3,
-"explanation": "答案：D (7年)。緊急醫療救護法。"
-},
-{
-"question": "刑法：行為之處罰，以何時之法律有明文規定者為限？",
-"options": ["報案時", "行為時", "裁判時", "起訴時"],
-"answer": 1,
-"explanation": "答案：B (行為時)。罪刑法定原則，刑法第1條。"
-},
-{
-"question": "刑法：沒收適用何時之法律？",
-"options": ["行為時", "裁判時", "犯罪結果發生時", "搜索時"],
-"answer": 1,
-"explanation": "答案：B (裁判時)。刑法第2條第2項：沒收適用裁判時之法律。"
-}
-]
-        ];
-
         let quizData = [];
         let currentMode = 'practice';
         let activeQuestions = [];
@@ -742,28 +457,77 @@
         let currentCombo = 0;
         let maxCombo = 0;
 
-        // 核心載入邏輯：自動檢查版本與數量，若為舊快取則強制重新導入最新預設題庫！
-        function initQuizDataStore() {
-            const savedVer = localStorage.getItem('law_quiz_sys_ver');
-            const savedData = localStorage.getItem('law_quiz_sys_data');
+        // 核心功能：自動掃描 GitHub 同儲存庫目錄下的所有可能 JSON 檔名
+        async function scanAndLoadGitHubJsonFiles() {
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
 
-            if (savedVer !== CURRENT_VERSION || !savedData || JSON.parse(savedData).length < defaultQuizData.length) {
-                localStorage.setItem('law_quiz_sys_ver', CURRENT_VERSION);
-                localStorage.setItem('law_quiz_sys_data', JSON.stringify(defaultQuizData));
-                quizData = [...defaultQuizData];
-            } else {
+            if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping";
+            if(statusText) statusText.innerText = "正在連線讀取 GitHub JSON 檔案...";
+
+            // 支援常見的所有題庫 JSON 檔名命名
+            const jsonCandidates = [
+                'law_bank_demo.json', 'law_bank.json', 'law_bank_complete.json', 
+                'law_bank_part1.json', 'law_bank_part2.json', 'law_bank_part3.json', 'law_bank_part4.json',
+                'questions.json', 'data.json', 'bank.json'
+            ];
+
+            let mergedData = [];
+            let loadedFilesCount = 0;
+
+            for (let fileName of jsonCandidates) {
                 try {
-                    quizData = JSON.parse(savedData);
-                } catch(e) {
-                    quizData = [...defaultQuizData];
+                    // 加入時間戳參數防瀏覽器 HTTP 快取
+                    const res = await fetch(fileName + '?t=' + Date.now());
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (Array.isArray(data) && data.length > 0) {
+                            mergedData = mergedData.concat(data);
+                            loadedFilesCount++;
+                            console.log(`[自動載入成功] 檔案: ${fileName}，取得 ${data.length} 題`);
+                        }
+                    }
+                } catch (e) {
+                    // 檔案不存在則順暢忽略，繼續嘗試下一個
                 }
             }
+
+            if (mergedData.length > 0) {
+                quizData = mergedData;
+                localStorage.setItem('law_quiz_v2026_dynamic_cache', JSON.stringify(quizData));
+                
+                if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse";
+                if(statusText) statusText.innerText = `成功從 GitHub 讀取 ${loadedFilesCount} 個 JSON 檔！`;
+                
+                updateBankUI();
+                return;
+            }
+
+            // 若線上連線失敗，嘗試讀取瀏覽器備份快取
+            const cached = localStorage.getItem('law_quiz_v2026_dynamic_cache');
+            if (cached) {
+                try {
+                    quizData = JSON.parse(cached);
+                    if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
+                    if(statusText) statusText.innerText = "已載入本地備份題庫";
+                } catch(e) {
+                    quizData = [];
+                }
+            } else {
+                if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
+                if(statusText) statusText.innerText = "未檢測到 GitHub JSON 檔，請先上傳 JSON！";
+            }
+            updateBankUI();
         }
 
-        // 頁面初始化
-        window.onload = function() {
-            initQuizDataStore();
+        function updateBankUI() {
+            document.getElementById('header-bank-count').innerText = quizData.length;
+            document.getElementById('bank-total-count').innerText = quizData.length;
             renderBankList();
+        }
+
+        window.onload = function() {
+            scanAndLoadGitHubJsonFiles();
         };
 
         // --- 視差粒子與光暈特效初始化 ---
@@ -825,11 +589,11 @@
             clearInterval(timer);
             
             if (quizData.length === 0) {
-                alert('題庫目前完全為空，請至「題庫管理」新增題目或重置題庫！');
+                alert('題庫目前為 0 題！請確認已將 JSON 檔案傳至 GitHub，或點擊「題庫管理」頁面進行匯入！');
                 return;
             }
 
-            // 隨機打亂總題庫並取最多 30 題
+            // 洗牌演算法（Fisher-Yates Shuffle）隨機抽取 30 題
             let shuffled = [...quizData].sort(() => Math.random() - 0.5);
             const questionLimit = Math.min(30, shuffled.length);
             activeQuestions = shuffled.slice(0, questionLimit);
@@ -880,12 +644,10 @@
             }
 
             renderCurrentQuestion();
-
-            // 平滑滾動至題目位置
             quizCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // 啟動 10 秒單題倒數計時器
+        // 10 秒快答倒數計時器
         function startSpeedTimer() {
             clearInterval(timer);
             timeLeft = 10;
@@ -947,7 +709,7 @@
                 let btnStyle = "bg-slate-900/60 border-white/10 hover:border-white/30 text-slate-300";
                 let badgeStyle = "bg-slate-800 text-slate-400";
 
-                // 若已做出選擇，鎖定按鈕（不可修改答案）
+                // 若已做選擇，鎖定選項按鈕（不可修改答案）
                 if (hasAnswered) {
                     btn.disabled = true;
 
@@ -1228,8 +990,7 @@
                 `;
             });
 
-            document.getElementById('bank-total-count').innerText = quizData.length;
-            container.innerHTML = html || '<div class="text-center py-6 text-slate-500 text-xs">目前題庫完全為空，請點選重置或手動新增題目</div>';
+            container.innerHTML = html || '<div class="text-center py-6 text-slate-500 text-xs">目前題庫完全為空，請確認已將 JSON 檔上傳至 GitHub 並點選重新連線！</div>';
         }
 
         function handleAddQuestion(e) {
@@ -1254,29 +1015,19 @@
             saveQuizData();
             document.getElementById('add-question-form').reset();
             alert('成功加入至題庫！目前題庫共 ' + quizData.length + ' 題');
-            renderBankList();
+            updateBankUI();
         }
 
         function deleteQuestion(idx) {
             if (confirm('確定要刪除此題目嗎？')) {
                 quizData.splice(idx, 1);
                 saveQuizData();
-                renderBankList();
+                updateBankUI();
             }
         }
 
         function saveQuizData() {
-            localStorage.setItem('law_quiz_sys_data', JSON.stringify(quizData));
-        }
-
-        function resetDefaultBank() {
-            if (confirm('確定要強制抹除快取並重置為系統預設題庫嗎？')) {
-                localStorage.removeItem('law_quiz_sys_ver');
-                localStorage.removeItem('law_quiz_sys_data');
-                initQuizDataStore();
-                renderBankList();
-                alert('已重新重置並載入最新題庫！目前共 ' + quizData.length + ' 題');
-            }
+            localStorage.setItem('law_quiz_v2026_dynamic_cache', JSON.stringify(quizData));
         }
 
         function exportQuestions() {
@@ -1308,7 +1059,7 @@
 
                     if (readCount === files.length) {
                         saveQuizData();
-                        renderBankList();
+                        updateBankUI();
                         alert('成功匯入！現有題庫總計：' + quizData.length + ' 題');
                     }
                 };
