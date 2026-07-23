@@ -196,7 +196,7 @@
             </div>
             <h1 class="text-3xl md:text-5xl font-black mb-2 tracking-tight shimmer-text">掌握法條 · 決勝賽場</h1>
             <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide max-w-xl mx-auto">
-                已載入完整 3,000 題大題庫！每次隨機抽取 30 題實戰演練！
+                已預設匯入全量講義與試卷題庫！每次隨機抽取 30 題實戰演練！
             </p>
         </div>
     </header>
@@ -430,7 +430,7 @@
             <div class="glass-card p-5 rounded-3xl space-y-3">
                 <div class="flex justify-between items-center border-b border-white/10 pb-3">
                     <h3 class="font-black text-white text-sm">現有題庫總覽 (<span id="bank-total-count" class="text-amber-400">0</span> 題)</h3>
-                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置為完整題庫</button>
+                    <button onclick="resetDefaultBank()" class="text-xs text-indigo-400 hover:underline font-black">重置為預設完整題庫</button>
                 </div>
                 <div id="bank-list-container" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                     <!-- 動態渲染題目卡片 -->
@@ -441,14 +441,17 @@
     </main>
 
     <footer class="py-6 text-center text-[10px] text-slate-500 border-t border-white/5 bg-slate-950/80 mt-auto">
-        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 3000題全融入版</p>
+        <p class="font-black tracking-widest uppercase">⚖️ 法律達人刷題酷 · 完整大題庫自動載入版</p>
     </footer>
 
     <!-- 腳本邏輯 -->
     <script>
+        // 版本控管 Key：確保舊有的 58 題暫存會被自動清理覆蓋
+        const CURRENT_VERSION = 'law_quiz_v2026_master_all';
+
         // --- 1. 完全寫入所有提供之試卷、講義與綜合選擇題 ---
         const defaultQuizData = [
-            // 國中公民會考歷屆考題與模擬題 (精選自 DOCX 1-5 卷)
+            // DOCX 1-5 卷會考精選考題
             { question: "日常生活中隨處可見法律的規範，明確規定政府與人民應該遵守的事項。下列何者不屬於法律的規範？", options: ["騎乘機車須戴安全帽", "穿越馬路應遵守交通規則", "開車上路應依照交通號誌的指示", "搭乘公車時座位應禮讓老弱婦孺"], answer: 3, explanation: "答案：D。搭乘公車禮讓老弱婦孺屬於倫理道德，非法律強制規範。" },
             { question: "法律在人民的生活中是相當重要的一環。下列關於法律的敘述何者錯誤？", options: ["法律明確規定人民應遵守的事項", "法律可保障人民的權利", "法律不僅約束人民，也約束政府的行為", "法律是具有強制力的風俗習慣"], answer: 3, explanation: "答案：D。法律是由國家立法機關依程序制定的社會規範，非風俗習慣。" },
             { question: "小明在某本書中讀到：「『該法』是人民權利的保障書，也是萬法之母。」請問：下列何者為該法具備的特性之一？", options: ["禁止性", "適應性", "進步性", "最高性"], answer: 3, explanation: "答案：D。憲法為萬法之母，具有最高性、原則性與穩定性。" },
@@ -499,10 +502,7 @@
             { question: "成人年齡：我國民法規定的「成年」年齡，自 2023 年起調整為幾歲？", options: ["十八歲", "二十歲", "十六歲", "十五歲"], answer: 0, explanation: "答案：A。民法成年年齡下修為 18 歲。" }
         ];
 
-        // 核心機制：強制使用 v2026_final 金鑰！開啟時自動抹除先前的 58 題快取！
-        let quizData = defaultQuizData;
-        localStorage.setItem('law_quiz_v2026_final', JSON.stringify(quizData));
-
+        let quizData = [];
         let currentMode = 'practice';
         let activeQuestions = [];
         let currentIndex = 0;
@@ -513,8 +513,27 @@
         let currentCombo = 0;
         let maxCombo = 0;
 
-        // 初始化
+        // 核心載入邏輯：自動檢查版本與數量，若為舊快取則強制重新導入最新預設題庫！
+        function initQuizDataStore() {
+            const savedVer = localStorage.getItem('law_quiz_sys_ver');
+            const savedData = localStorage.getItem('law_quiz_sys_data');
+
+            if (savedVer !== CURRENT_VERSION || !savedData || JSON.parse(savedData).length < defaultQuizData.length) {
+                localStorage.setItem('law_quiz_sys_ver', CURRENT_VERSION);
+                localStorage.setItem('law_quiz_sys_data', JSON.stringify(defaultQuizData));
+                quizData = [...defaultQuizData];
+            } else {
+                try {
+                    quizData = JSON.parse(savedData);
+                } catch(e) {
+                    quizData = [...defaultQuizData];
+                }
+            }
+        }
+
+        // 頁面初始化
         window.onload = function() {
+            initQuizDataStore();
             renderBankList();
         };
 
@@ -577,7 +596,7 @@
             clearInterval(timer);
             
             if (quizData.length === 0) {
-                alert('題庫目前完全為空，請至「題庫管理」新增題目！');
+                alert('題庫目前完全為空，請至「題庫管理」新增題目或重置題庫！');
                 return;
             }
 
@@ -632,6 +651,8 @@
             }
 
             renderCurrentQuestion();
+
+            // 平滑滾動至題目位置
             quizCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -697,7 +718,7 @@
                 let btnStyle = "bg-slate-900/60 border-white/10 hover:border-white/30 text-slate-300";
                 let badgeStyle = "bg-slate-800 text-slate-400";
 
-                // 若已做出選擇，鎖定按鈕（不可再修改答案）
+                // 若已做出選擇，鎖定按鈕（不可修改答案）
                 if (hasAnswered) {
                     btn.disabled = true;
 
@@ -900,13 +921,13 @@
         }
 
         function saveHistory(record) {
-            let history = JSON.parse(localStorage.getItem('law_quiz_history_v2026_final')) || [];
+            let history = JSON.parse(localStorage.getItem('law_quiz_history_sys')) || [];
             history.unshift(record);
-            localStorage.setItem('law_quiz_history_v2026_final', JSON.stringify(history));
+            localStorage.setItem('law_quiz_history_sys', JSON.stringify(history));
         }
 
         function renderStats() {
-            const history = JSON.parse(localStorage.getItem('law_quiz_history_v2026_final')) || [];
+            const history = JSON.parse(localStorage.getItem('law_quiz_history_sys')) || [];
             
             let totalAns = 0;
             let sumRate = 0;
@@ -951,7 +972,7 @@
 
         function clearHistory() {
             if (confirm('確定要清除所有練習歷史紀錄嗎？')) {
-                localStorage.removeItem('law_quiz_history_v2026_final');
+                localStorage.removeItem('law_quiz_history_sys');
                 renderStats();
             }
         }
@@ -979,7 +1000,7 @@
             });
 
             document.getElementById('bank-total-count').innerText = quizData.length;
-            container.innerHTML = html || '<div class="text-center py-6 text-slate-500 text-xs">目前題庫完全為空，請手動新增或匯入題目</div>';
+            container.innerHTML = html || '<div class="text-center py-6 text-slate-500 text-xs">目前題庫完全為空，請點選重置或手動新增題目</div>';
         }
 
         function handleAddQuestion(e) {
@@ -1016,14 +1037,16 @@
         }
 
         function saveQuizData() {
-            localStorage.setItem('law_quiz_v2026_final', JSON.stringify(quizData));
+            localStorage.setItem('law_quiz_sys_data', JSON.stringify(quizData));
         }
 
         function resetDefaultBank() {
-            if (confirm('確定要恢復為預設完整題庫嗎？')) {
-                quizData = defaultQuizData;
-                saveQuizData();
+            if (confirm('確定要強制抹除快取並重置為系統預設題庫嗎？')) {
+                localStorage.removeItem('law_quiz_sys_ver');
+                localStorage.removeItem('law_quiz_sys_data');
+                initQuizDataStore();
                 renderBankList();
+                alert('已重新重置並載入最新題庫！目前共 ' + quizData.length + ' 題');
             }
         }
 
@@ -1066,3 +1089,4 @@
     </script>
 </body>
 </html>
+```e-o-f
