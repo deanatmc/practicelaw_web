@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>法律達人競賽刷題酷 | 大題庫載入版｜v3.0 |全新版｜</title>
+    <title>法律達人競賽刷題酷 | 大題庫載入版｜v.2.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入芫荽體官方字型檔 -->
     <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
@@ -143,6 +143,29 @@
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
+
+    <!-- 進入網頁題庫載入覆蓋層：顯示掃描進度，讀取完成後自動淡出 -->
+    <div id="loading-overlay" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 backdrop-blur-xl transition-opacity duration-500 px-4">
+        <div class="glass-card w-full max-w-sm p-6 md:p-8 rounded-3xl text-center space-y-5 border-indigo-500/30">
+            <div class="inline-flex w-16 h-16 md:w-20 md:h-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 text-3xl md:text-4xl shadow-lg shadow-indigo-500/30 animate-pulse">
+                ⚖️
+            </div>
+            <div>
+                <h2 class="text-lg md:text-xl font-black text-white shimmer-text">法律達人題庫載入中</h2>
+                <p id="loading-status-text" class="text-xs md:text-sm text-slate-400 mt-1.5 font-bold">正在連線讀取題庫...</p>
+            </div>
+
+            <div class="space-y-2">
+                <div class="w-full bg-slate-800/80 h-2.5 rounded-full overflow-hidden">
+                    <div id="loading-progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-[10px] md:text-xs text-slate-500 font-black">
+                    <span id="loading-progress-label">0 / 10 個檔案</span>
+                    <span id="loading-progress-percent">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 動態背景與粒子 -->
     <div class="bg-canvas">
@@ -458,6 +481,37 @@
         let currentCombo = 0;
         let maxCombo = 0;
 
+        // ===== 載入覆蓋層控制（顯示/隱藏 + 進度更新）=====
+        function showLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+            overlay.style.pointerEvents = 'auto';
+        }
+
+        function hideLoadingOverlay(delay = 300) {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+                setTimeout(() => { overlay.style.display = 'none'; }, 500);
+            }, delay);
+        }
+
+        function updateLoadingProgress(completed, total, statusMsg) {
+            const bar = document.getElementById('loading-progress-bar');
+            const label = document.getElementById('loading-progress-label');
+            const percent = document.getElementById('loading-progress-percent');
+            const statusText = document.getElementById('loading-status-text');
+            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+            if (bar) bar.style.width = pct + '%';
+            if (label) label.innerText = `${completed} / ${total} 個檔案`;
+            if (percent) percent.innerText = pct + '%';
+            if (statusText && statusMsg) statusText.innerText = statusMsg;
+        }
+
         // 【優化 1】頁面一開啟就先讀本地快取，讓使用者「秒開」看到上次的題庫，
         // 不必乾等網路請求全部跑完才看得到畫面（Stale-While-Revalidate 概念）
         function loadCachedQuizData() {
@@ -472,6 +526,7 @@
                     const statusText = document.getElementById('status-text');
                     if (statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
                     if (statusText) statusText.innerText = `已載入本地快取（${quizData.length} 題），背景同步最新中...`;
+                    updateLoadingProgress(10, 10, `已載入本地快取（${quizData.length} 題）`);
                     return true;
                 }
             } catch (e) {
@@ -488,9 +543,19 @@
             return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
         }
 
+        // 單一候選檔案的讀取；無論成功、404、逾時或例外，都回傳 data 或 null，
+        // 絕不讓外層的 Promise 進入 rejected 狀態，方便統一計算進度
+        function fetchCandidate(fileName, ts) {
+            return fetchWithTimeout(`${fileName}?t=${ts}`)
+                .then(res => (res.ok ? res.json() : null))
+                .catch(() => null);
+        }
+
         // 核心功能：平行掃描 GitHub 同儲存庫目錄下的所有可能 JSON 檔名
-        // 【優化 3】改用 Promise.allSettled 同時送出所有請求，取代原本逐一 await 的序列寫法，
+        // 【優化 3】改用平行 fetch 取代原本逐一 await 的序列寫法，
         // 10 個候選檔名不再互相排隊等待，載入時間大幅縮短（理論上等同最慢那一個檔案的時間，而非總和）
+        // 【優化 6】每個檔案各自完成時即時回報進度，讓載入覆蓋層的進度條真實反映掃描狀況，
+        // 而非一路空白直到全部檔案都跑完才跳到 100%
         async function scanAndLoadGitHubJsonFiles() {
             const statusIndicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
@@ -507,22 +572,33 @@
             ];
 
             const ts = Date.now(); // 加入時間戳參數防瀏覽器 HTTP 快取
-            const results = await Promise.allSettled(
+            const total = jsonCandidates.length;
+            let completed = 0;
+
+            // 首次進站（尚無快取）才需要即時更新覆蓋層進度條；
+            // 若已有快取秒開畫面，覆蓋層已淡出，此時是安靜的背景同步，不再打擾使用者
+            if (!hadCache) updateLoadingProgress(0, total, `掃描題庫檔案中 (0/${total})...`);
+
+            const results = await Promise.all(
                 jsonCandidates.map(fileName =>
-                    fetchWithTimeout(`${fileName}?t=${ts}`).then(res => (res.ok ? res.json() : null))
+                    fetchCandidate(fileName, ts).then(data => {
+                        completed++;
+                        if (!hadCache) updateLoadingProgress(completed, total, `掃描題庫檔案中 (${completed}/${total})...`);
+                        return data;
+                    })
                 )
             );
 
             let mergedData = [];
             let loadedFilesCount = 0;
 
-            results.forEach((result, idx) => {
-                if (result.status === 'fulfilled' && Array.isArray(result.value) && result.value.length > 0) {
-                    mergedData = mergedData.concat(result.value);
+            results.forEach((data, idx) => {
+                if (Array.isArray(data) && data.length > 0) {
+                    mergedData = mergedData.concat(data);
                     loadedFilesCount++;
-                    console.log(`[自動載入成功] 檔案: ${jsonCandidates[idx]}，取得 ${result.value.length} 題`);
+                    console.log(`[自動載入成功] 檔案: ${jsonCandidates[idx]}，取得 ${data.length} 題`);
                 }
-                // fulfilled 但值為 null（檔案不存在/404）或 rejected（逾時、網路錯誤）都順暢忽略
+                // data 為 null（檔案不存在/404、逾時或網路錯誤）都順暢忽略
             });
 
             if (mergedData.length > 0) {
@@ -542,7 +618,12 @@
                 
                 if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse";
                 if(statusText) statusText.innerText = `成功從 GitHub 讀取 ${loadedFilesCount} 個 JSON 檔（共 ${quizData.length} 題）！`;
-                
+
+                if (!hadCache) {
+                    updateLoadingProgress(total, total, `載入完成！共 ${quizData.length} 題`);
+                    hideLoadingOverlay(400);
+                }
+
                 updateBankUI();
                 return;
             }
@@ -555,13 +636,18 @@
                         quizData = JSON.parse(cached);
                         if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
                         if(statusText) statusText.innerText = "已載入本地備份題庫";
+                        updateLoadingProgress(total, total, `已載入本地備份題庫（${quizData.length} 題）`);
                     } catch(e) {
                         quizData = [];
+                        updateLoadingProgress(total, total, "題庫讀取失敗");
                     }
                 } else {
                     if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
                     if(statusText) statusText.innerText = "未檢測到 GitHub JSON 檔，請先上傳 JSON！";
+                    updateLoadingProgress(total, total, "尚未找到題庫，請至「題庫」頁面匯入");
                 }
+                // 無論成功、讀取備份或完全失敗，掃描已結束，覆蓋層都該淡出讓使用者能操作頁面
+                hideLoadingOverlay(600);
             } else {
                 if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
                 if(statusText) statusText.innerText = `目前使用本地快取題庫（${quizData.length} 題），線上暫無更新`;
@@ -578,7 +664,13 @@
         // 【優化 5】原本用 window.onload 會等到圖片、字型、外部腳本全部載入完畢才開始抓題庫，
         // 造成不必要的延遲。由於此 <script> 已在 </body> 前，DOM 早已就緒，
         // 這裡改成：先同步讀本地快取「秒開」畫面，接著立刻背景送出網路請求，兩者互不阻塞。
-        loadCachedQuizData();
+        // 【優化 7】進入網頁時先顯示載入覆蓋層並展示進度；若本地已有快取則快速確認後淡出，
+        // 沒有快取則保留覆蓋層、即時顯示 10 個候選檔案的真實掃描進度，直到題庫就緒才淡出。
+        showLoadingOverlay();
+        const hasCacheOnEntry = loadCachedQuizData();
+        if (hasCacheOnEntry) {
+            hideLoadingOverlay(500);
+        }
         scanAndLoadGitHubJsonFiles();
 
         // --- 視差粒子與光暈特效初始化 ---
