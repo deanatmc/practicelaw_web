@@ -4,13 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>法律達人競賽刷題酷 | 大題庫載入版｜v.2.1</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 【優化 9】關鍵載入畫面樣式：獨立用純 CSS 定義（不依賴 Tailwind 工具類別），
+         並放在所有外部腳本之前。這樣瀏覽器不必等 Tailwind CDN 下載執行完，
+         一進頁面就能立刻正確地全螢幕置中顯示「題庫載入中」畫面。 -->
+    <style>
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 0 1rem;
+            box-sizing: border-box;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+            font-family: 'Iansui', -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif;
+        }
+        #loading-overlay .loading-card {
+            width: 100%;
+            max-width: 24rem;
+            padding: 2rem 1.5rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        #loading-overlay .loading-icon {
+            width: 4.5rem; height: 4.5rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 1rem;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #f43f5e);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35);
+        }
+        #loading-overlay h2 {
+            color: #fff; font-weight: 900; font-size: 1.15rem; margin: 0 0 0.4rem;
+        }
+        #loading-overlay p {
+            color: #94a3b8; font-size: 0.8rem; font-weight: 700; margin: 0 0 1.25rem;
+        }
+        #loading-overlay .loading-track {
+            width: 100%; height: 0.625rem; border-radius: 999px; overflow: hidden;
+            background: rgba(30, 41, 59, 0.8);
+        }
+        #loading-overlay .loading-bar {
+            height: 100%; width: 0%; border-radius: 999px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            transition: width 0.3s ease;
+        }
+        #loading-overlay .loading-meta {
+            display: flex; justify-content: space-between;
+            font-size: 0.65rem; font-weight: 900; color: #64748b; margin-top: 0.5rem;
+        }
+    </style>
+
     <!-- 引入芫荽體官方字型檔 -->
     <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
     <!-- FontAwesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Canvas Confetti 華麗彩帶特效 -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- 【優化 9-修正】Tailwind／Confetti 的 <script> 標籤改移到 <body> 開頭載入覆蓋層之後
+         （不使用 defer，避免 Tailwind CDN 因執行時機改變而運作異常）。
+         這樣瀏覽器會先畫出上面這段純 CSS 定義好的載入畫面，蓋住整個畫面，
+         再繼續往下載入 Tailwind／Confetti，使用者不會看到中間過程。 -->
     
     <style>
         :root {
@@ -144,10 +206,12 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- 進入網頁題庫載入覆蓋層：顯示掃描進度，讀取完成後自動淡出 -->
+    <!-- 進入網頁題庫載入覆蓋層：顯示掃描進度，讀取完成後自動淡出
+         同時使用 loading-card / loading-icon / loading-track / loading-bar / loading-meta 這幾個純 CSS class，
+         確保 Tailwind CDN 尚未執行完成前，畫面也已經是正確排版好的樣子（不會有跑版或無樣式的瞬間） -->
     <div id="loading-overlay" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 backdrop-blur-xl transition-opacity duration-500 px-4">
-        <div class="glass-card w-full max-w-sm p-6 md:p-8 rounded-3xl text-center space-y-5 border-indigo-500/30">
-            <div class="inline-flex w-16 h-16 md:w-20 md:h-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 text-3xl md:text-4xl shadow-lg shadow-indigo-500/30 animate-pulse">
+        <div class="loading-card glass-card w-full max-w-sm p-6 md:p-8 rounded-3xl text-center space-y-5 border-indigo-500/30">
+            <div class="loading-icon inline-flex w-16 h-16 md:w-20 md:h-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 text-3xl md:text-4xl shadow-lg shadow-indigo-500/30 animate-pulse">
                 ⚖️
             </div>
             <div>
@@ -156,16 +220,23 @@
             </div>
 
             <div class="space-y-2">
-                <div class="w-full bg-slate-800/80 h-2.5 rounded-full overflow-hidden">
-                    <div id="loading-progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <div class="loading-track w-full bg-slate-800/80 h-2.5 rounded-full overflow-hidden">
+                    <div id="loading-progress-bar" class="loading-bar bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
-                <div class="flex justify-between text-[10px] md:text-xs text-slate-500 font-black">
+                <div class="loading-meta flex justify-between text-[10px] md:text-xs text-slate-500 font-black">
                     <span id="loading-progress-label">0 / 10 個檔案</span>
                     <span id="loading-progress-percent">0%</span>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Tailwind／Confetti 在此處載入（不加 defer）：
+         此時瀏覽器已經畫出上面的載入覆蓋層（純 CSS，蓋滿全螢幕），
+         接下來載入 Tailwind 會照常同步執行、順便掃描已存在的 DOM，
+         其餘頁面內容則等它執行完才繼續解析，使用者只會看到覆蓋層，不會看到中間過程 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <!-- 動態背景與粒子 -->
     <div class="bg-canvas">
@@ -535,18 +606,31 @@
             return false;
         }
 
-        // 【優化 2】帶逾時保護的 fetch：若某個 JSON 檔案回應過慢（例如 CDN 延遲或網路異常），
-        // 最多等待數秒就自動放棄，不會拖累整體題庫載入速度
-        function fetchWithTimeout(url, timeoutMs = 6000) {
+        // 【優化 8】全域同步時間上限：無論網路狀況多差，整體掃描保證在 30 秒內結束，
+        // 不會讓使用者無止盡等待
+        const GLOBAL_SYNC_TIMEOUT_MS = 30000;
+        const PER_FILE_TIMEOUT_MS = 12000; // 單檔案逾時放寬到 12 秒，避免大檔案被錯殺，但仍受全域 30 秒節制
+
+        // 帶逾時保護的 fetch：可同時吃「單檔案逾時」與「全域倒數」兩種訊號，任一觸發就中止，
+        // 這樣即使單檔案還沒到自己的 12 秒上限，也會被全域 30 秒鐘的死線一起強制收斂
+        function fetchWithTimeout(url, timeoutMs = PER_FILE_TIMEOUT_MS, externalSignal = null) {
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
-            return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+            const localTimer = setTimeout(() => controller.abort(), timeoutMs);
+            const onExternalAbort = () => controller.abort();
+            if (externalSignal) {
+                if (externalSignal.aborted) controller.abort();
+                else externalSignal.addEventListener('abort', onExternalAbort, { once: true });
+            }
+            return fetch(url, { signal: controller.signal }).finally(() => {
+                clearTimeout(localTimer);
+                if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort);
+            });
         }
 
         // 單一候選檔案的讀取；無論成功、404、逾時或例外，都回傳 data 或 null，
         // 絕不讓外層的 Promise 進入 rejected 狀態，方便統一計算進度
-        function fetchCandidate(fileName, ts) {
-            return fetchWithTimeout(`${fileName}?t=${ts}`)
+        function fetchCandidate(fileName, ts, globalSignal) {
+            return fetchWithTimeout(`${fileName}?t=${ts}`, PER_FILE_TIMEOUT_MS, globalSignal)
                 .then(res => (res.ok ? res.json() : null))
                 .catch(() => null);
         }
@@ -556,6 +640,7 @@
         // 10 個候選檔名不再互相排隊等待，載入時間大幅縮短（理論上等同最慢那一個檔案的時間，而非總和）
         // 【優化 6】每個檔案各自完成時即時回報進度，讓載入覆蓋層的進度條真實反映掃描狀況，
         // 而非一路空白直到全部檔案都跑完才跳到 100%
+        // 【優化 8】搭配 30 秒全域死線：不論網路多慢，整個同步流程保證 30 秒內結束並用現有資料收尾
         async function scanAndLoadGitHubJsonFiles() {
             const statusIndicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
@@ -575,19 +660,34 @@
             const total = jsonCandidates.length;
             let completed = 0;
 
-            // 首次進站（尚無快取）才需要即時更新覆蓋層進度條；
+            // 全域倒數計時器：30 秒後強制中止所有還沒回應的請求
+            const globalController = new AbortController();
+            const globalDeadlineTimer = setTimeout(() => globalController.abort(), GLOBAL_SYNC_TIMEOUT_MS);
+
+            // 首次進站（尚無快取）才需要即時更新覆蓋層進度條與倒數秒數；
             // 若已有快取秒開畫面，覆蓋層已淡出，此時是安靜的背景同步，不再打擾使用者
-            if (!hadCache) updateLoadingProgress(0, total, `掃描題庫檔案中 (0/${total})...`);
+            let countdownInterval = null;
+            if (!hadCache) {
+                updateLoadingProgress(0, total, `掃描題庫檔案中 (0/${total})... 最多 30 秒內完成`);
+                const startedAt = Date.now();
+                countdownInterval = setInterval(() => {
+                    const remain = Math.max(0, Math.ceil((GLOBAL_SYNC_TIMEOUT_MS - (Date.now() - startedAt)) / 1000));
+                    updateLoadingProgress(completed, total, `掃描題庫檔案中 (${completed}/${total})... 剩餘 ${remain} 秒`);
+                }, 1000);
+            }
 
             const results = await Promise.all(
                 jsonCandidates.map(fileName =>
-                    fetchCandidate(fileName, ts).then(data => {
+                    fetchCandidate(fileName, ts, globalController.signal).then(data => {
                         completed++;
                         if (!hadCache) updateLoadingProgress(completed, total, `掃描題庫檔案中 (${completed}/${total})...`);
                         return data;
                     })
                 )
             );
+
+            clearTimeout(globalDeadlineTimer);
+            if (countdownInterval) clearInterval(countdownInterval);
 
             let mergedData = [];
             let loadedFilesCount = 0;
