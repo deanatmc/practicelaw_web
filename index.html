@@ -458,13 +458,46 @@
         let currentCombo = 0;
         let maxCombo = 0;
 
-        // 核心功能：自動掃描 GitHub 同儲存庫目錄下的所有可能 JSON 檔名
+        // 【優化 1】頁面一開啟就先讀本地快取，讓使用者「秒開」看到上次的題庫，
+        // 不必乾等網路請求全部跑完才看得到畫面（Stale-While-Revalidate 概念）
+        function loadCachedQuizData() {
+            const cached = localStorage.getItem('law_quiz_v2026_dynamic_cache');
+            if (!cached) return false;
+            try {
+                const parsed = JSON.parse(cached);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    quizData = parsed;
+                    updateBankUI();
+                    const statusIndicator = document.getElementById('status-indicator');
+                    const statusText = document.getElementById('status-text');
+                    if (statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
+                    if (statusText) statusText.innerText = `已載入本地快取（${quizData.length} 題），背景同步最新中...`;
+                    return true;
+                }
+            } catch (e) {
+                console.warn('本地快取解析失敗', e);
+            }
+            return false;
+        }
+
+        // 【優化 2】帶逾時保護的 fetch：若某個 JSON 檔案回應過慢（例如 CDN 延遲或網路異常），
+        // 最多等待數秒就自動放棄，不會拖累整體題庫載入速度
+        function fetchWithTimeout(url, timeoutMs = 6000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+        }
+
+        // 核心功能：平行掃描 GitHub 同儲存庫目錄下的所有可能 JSON 檔名
+        // 【優化 3】改用 Promise.allSettled 同時送出所有請求，取代原本逐一 await 的序列寫法，
+        // 10 個候選檔名不再互相排隊等待，載入時間大幅縮短（理論上等同最慢那一個檔案的時間，而非總和）
         async function scanAndLoadGitHubJsonFiles() {
             const statusIndicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
+            const hadCache = quizData.length > 0;
 
             if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping";
-            if(statusText) statusText.innerText = "正在連線讀取 GitHub JSON 檔案...";
+            if(statusText) statusText.innerText = hadCache ? "背景同步最新題庫中..." : "正在連線讀取 GitHub JSON 檔案...";
 
             // 支援常見的所有題庫 JSON 檔名命名
             const jsonCandidates = [
@@ -473,50 +506,65 @@
                 'questions.json', 'data.json', 'bank.json'
             ];
 
+            const ts = Date.now(); // 加入時間戳參數防瀏覽器 HTTP 快取
+            const results = await Promise.allSettled(
+                jsonCandidates.map(fileName =>
+                    fetchWithTimeout(`${fileName}?t=${ts}`).then(res => (res.ok ? res.json() : null))
+                )
+            );
+
             let mergedData = [];
             let loadedFilesCount = 0;
 
-            for (let fileName of jsonCandidates) {
-                try {
-                    // 加入時間戳參數防瀏覽器 HTTP 快取
-                    const res = await fetch(fileName + '?t=' + Date.now());
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (Array.isArray(data) && data.length > 0) {
-                            mergedData = mergedData.concat(data);
-                            loadedFilesCount++;
-                            console.log(`[自動載入成功] 檔案: ${fileName}，取得 ${data.length} 題`);
-                        }
-                    }
-                } catch (e) {
-                    // 檔案不存在則順暢忽略，繼續嘗試下一個
+            results.forEach((result, idx) => {
+                if (result.status === 'fulfilled' && Array.isArray(result.value) && result.value.length > 0) {
+                    mergedData = mergedData.concat(result.value);
+                    loadedFilesCount++;
+                    console.log(`[自動載入成功] 檔案: ${jsonCandidates[idx]}，取得 ${result.value.length} 題`);
                 }
-            }
+                // fulfilled 但值為 null（檔案不存在/404）或 rejected（逾時、網路錯誤）都順暢忽略
+            });
 
             if (mergedData.length > 0) {
-                quizData = mergedData;
+                // 【優化 4】依 id（若無則以題目文字）去除重複題目，避免多檔案內容重疊造成題庫膨脹
+                const seen = new Set();
+                const deduped = [];
+                mergedData.forEach(q => {
+                    const key = q.id || q.question;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        deduped.push(q);
+                    }
+                });
+
+                quizData = deduped;
                 localStorage.setItem('law_quiz_v2026_dynamic_cache', JSON.stringify(quizData));
                 
                 if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse";
-                if(statusText) statusText.innerText = `成功從 GitHub 讀取 ${loadedFilesCount} 個 JSON 檔！`;
+                if(statusText) statusText.innerText = `成功從 GitHub 讀取 ${loadedFilesCount} 個 JSON 檔（共 ${quizData.length} 題）！`;
                 
                 updateBankUI();
                 return;
             }
 
-            // 若線上連線失敗，嘗試讀取瀏覽器備份快取
-            const cached = localStorage.getItem('law_quiz_v2026_dynamic_cache');
-            if (cached) {
-                try {
-                    quizData = JSON.parse(cached);
-                    if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
-                    if(statusText) statusText.innerText = "已載入本地備份題庫";
-                } catch(e) {
-                    quizData = [];
+            // 若線上連線失敗，且先前沒有快取可用，才嘗試讀取瀏覽器備份或顯示錯誤
+            if (!hadCache) {
+                const cached = localStorage.getItem('law_quiz_v2026_dynamic_cache');
+                if (cached) {
+                    try {
+                        quizData = JSON.parse(cached);
+                        if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
+                        if(statusText) statusText.innerText = "已載入本地備份題庫";
+                    } catch(e) {
+                        quizData = [];
+                    }
+                } else {
+                    if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
+                    if(statusText) statusText.innerText = "未檢測到 GitHub JSON 檔，請先上傳 JSON！";
                 }
             } else {
-                if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
-                if(statusText) statusText.innerText = "未檢測到 GitHub JSON 檔，請先上傳 JSON！";
+                if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
+                if(statusText) statusText.innerText = `目前使用本地快取題庫（${quizData.length} 題），線上暫無更新`;
             }
             updateBankUI();
         }
@@ -527,9 +575,11 @@
             renderBankList();
         }
 
-        window.onload = function() {
-            scanAndLoadGitHubJsonFiles();
-        };
+        // 【優化 5】原本用 window.onload 會等到圖片、字型、外部腳本全部載入完畢才開始抓題庫，
+        // 造成不必要的延遲。由於此 <script> 已在 </body> 前，DOM 早已就緒，
+        // 這裡改成：先同步讀本地快取「秒開」畫面，接著立刻背景送出網路請求，兩者互不阻塞。
+        loadCachedQuizData();
+        scanAndLoadGitHubJsonFiles();
 
         // --- 視差粒子與光暈特效初始化 ---
         const pContainer = document.getElementById('particles-container');
