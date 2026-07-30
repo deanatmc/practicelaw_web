@@ -3,77 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>法律達人競賽刷題酷 | 大題庫載入版｜v.2.1</title>
-
-    <!-- 【優化 9】關鍵載入畫面樣式：獨立用純 CSS 定義（不依賴 Tailwind 工具類別），
-         並放在所有外部腳本之前。這樣瀏覽器不必等 Tailwind CDN 下載執行完，
-         一進頁面就能立刻正確地全螢幕置中顯示「題庫載入中」畫面。 -->
-    <style>
-        #loading-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(2, 6, 23, 0.95);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            padding: 0 1rem;
-            box-sizing: border-box;
-            opacity: 1;
-            transition: opacity 0.5s ease;
-            font-family: 'Iansui', -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif;
-        }
-        #loading-overlay .loading-card {
-            width: 100%;
-            max-width: 24rem;
-            padding: 2rem 1.5rem;
-            border-radius: 1.5rem;
-            text-align: center;
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        }
-        #loading-overlay .loading-icon {
-            width: 4.5rem; height: 4.5rem;
-            display: inline-flex; align-items: center; justify-content: center;
-            border-radius: 1rem;
-            font-size: 2rem;
-            margin: 0 auto 1rem;
-            background: linear-gradient(135deg, #6366f1, #a855f7, #f43f5e);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35);
-        }
-        #loading-overlay h2 {
-            color: #fff; font-weight: 900; font-size: 1.15rem; margin: 0 0 0.4rem;
-        }
-        #loading-overlay p {
-            color: #94a3b8; font-size: 0.8rem; font-weight: 700; margin: 0 0 1.25rem;
-        }
-        #loading-overlay .loading-track {
-            width: 100%; height: 0.625rem; border-radius: 999px; overflow: hidden;
-            background: rgba(30, 41, 59, 0.8);
-        }
-        #loading-overlay .loading-bar {
-            height: 100%; width: 0%; border-radius: 999px;
-            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
-            transition: width 0.3s ease;
-        }
-        #loading-overlay .loading-meta {
-            display: flex; justify-content: space-between;
-            font-size: 0.65rem; font-weight: 900; color: #64748b; margin-top: 0.5rem;
-        }
-    </style>
-
+    <title>法律達人競賽刷題酷 | 大題庫載入版｜v3.1</title>
     <!-- 引入芫荽體官方字型檔 -->
     <link href="https://cdn.jsdelivr.net/npm/iansui/iansui.css" rel="stylesheet">
     <!-- FontAwesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 【優化 9-修正】Tailwind／Confetti 的 <script> 標籤改移到 <body> 開頭載入覆蓋層之後
-         （不使用 defer，避免 Tailwind CDN 因執行時機改變而運作異常）。
-         這樣瀏覽器會先畫出上面這段純 CSS 定義好的載入畫面，蓋住整個畫面，
-         再繼續往下載入 Tailwind／Confetti，使用者不會看到中間過程。 -->
-    
     <style>
         :root {
             --primary: #6366f1;
@@ -202,39 +136,267 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 10px; }
+
+        /* 題庫啟動載入畫面 */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background:
+                radial-gradient(circle at 25% 20%, rgba(99, 102, 241, 0.28), transparent 36%),
+                radial-gradient(circle at 80% 75%, rgba(168, 85, 247, 0.24), transparent 38%),
+                rgba(2, 6, 23, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            transition: opacity 0.55s ease, visibility 0.55s ease;
+        }
+
+        #loading-screen.loading-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* 載入畫面的必要排版全部使用純 CSS。
+           即使 Tailwind 尚未載入，進站時也不會先看到未排版內容。 */
+        .loading-panel {
+            width: 100%;
+            max-width: 28rem;
+            box-sizing: border-box;
+            padding: 1.75rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        .loading-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .loading-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 4rem;
+            height: 4rem;
+            margin-bottom: 1rem;
+            border-radius: 1rem;
+            font-size: 1.875rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #f43f5e);
+            box-shadow: 0 12px 32px rgba(168, 85, 247, 0.28);
+            animation: loadingFloat 1.8s ease-in-out infinite alternate;
+        }
+
+        .loading-kicker {
+            margin-bottom: 0.25rem;
+            color: #a5b4fc;
+            font-size: 0.625rem;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        .loading-title {
+            margin: 0;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 900;
+        }
+
+        .loading-copy {
+            min-height: 2.5rem;
+            margin: 0.5rem 0 0;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .loading-progress-section {
+            margin-top: 1.25rem;
+        }
+
+        .loading-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 900;
+        }
+
+        .loading-stage-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #a5b4fc;
+        }
+
+        .loading-spinner {
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid rgba(165, 180, 252, 0.25);
+            border-top-color: #a5b4fc;
+            border-radius: 9999px;
+            animation: loadingSpin 0.8s linear infinite;
+        }
+
+        .loading-percent {
+            color: #fcd34d;
+        }
+
+        .loading-track {
+            height: 0.75rem;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            background: #0f172a;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .loading-progress-fill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            width: 45%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+            transform: translateX(-130%);
+            animation: loadingShine 1.25s linear infinite;
+        }
+
+        .loading-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .loading-stat {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .loading-stat-label {
+            color: #64748b;
+            font-size: 0.625rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .loading-stat-value {
+            margin-top: 0.25rem;
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .loading-question-value {
+            color: #fcd34d;
+        }
+
+        .loading-note {
+            margin: 1rem 0 0;
+            color: #475569;
+            font-size: 0.625rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        @keyframes loadingFloat {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-7px) scale(1.04); }
+        }
+
+        @keyframes loadingSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes loadingShine {
+            to { transform: translateX(310%); }
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- 進入網頁題庫載入覆蓋層：顯示掃描進度，讀取完成後自動淡出
-         同時使用 loading-card / loading-icon / loading-track / loading-bar / loading-meta 這幾個純 CSS class，
-         確保 Tailwind CDN 尚未執行完成前，畫面也已經是正確排版好的樣子（不會有跑版或無樣式的瞬間） -->
-    <div id="loading-overlay" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 backdrop-blur-xl transition-opacity duration-500 px-4">
-        <div class="loading-card glass-card w-full max-w-sm p-6 md:p-8 rounded-3xl text-center space-y-5 border-indigo-500/30">
-            <div class="loading-icon inline-flex w-16 h-16 md:w-20 md:h-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 text-3xl md:text-4xl shadow-lg shadow-indigo-500/30 animate-pulse">
-                ⚖️
-            </div>
-            <div>
-                <h2 class="text-lg md:text-xl font-black text-white shimmer-text">法律達人題庫載入中</h2>
-                <p id="loading-status-text" class="text-xs md:text-sm text-slate-400 mt-1.5 font-bold">正在連線讀取題庫...</p>
+    <!-- 首次進入與重新同步題庫時顯示的載入介面 -->
+    <div id="loading-screen" role="dialog" aria-modal="true" aria-live="polite" aria-hidden="false">
+        <div class="loading-panel w-full max-w-md rounded-[2rem] border border-white/15 bg-slate-950/85 p-6 md:p-8 shadow-2xl shadow-indigo-950/70 backdrop-blur-2xl">
+            <div class="loading-header flex flex-col items-center text-center">
+                <div class="loading-logo mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 text-3xl shadow-xl shadow-purple-500/30">
+                    ⚖️
+                </div>
+                <div class="loading-kicker mb-1 text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300">
+                    Law Quiz v3.1
+                </div>
+                <h2 class="loading-title text-xl md:text-2xl font-black text-white">正在載入全部法律題庫</h2>
+                <p id="loading-message" class="loading-copy mt-2 min-h-[2.5rem] text-xs leading-relaxed text-slate-400">
+                    所有題庫完成下載、解析與去重前，請稍候……
+                </p>
             </div>
 
-            <div class="space-y-2">
-                <div class="loading-track w-full bg-slate-800/80 h-2.5 rounded-full overflow-hidden">
-                    <div id="loading-progress-bar" class="loading-bar bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            <div class="loading-progress-section mt-5">
+                <div class="loading-status-row mb-2 flex items-center justify-between text-xs font-black">
+                    <span class="loading-stage-wrap flex items-center gap-2 text-indigo-300">
+                        <span id="loading-spinner" class="loading-spinner"></span>
+                        <span id="loading-stage">初始化</span>
+                    </span>
+                    <span id="loading-progress-percent" class="loading-percent text-amber-300">0%</span>
                 </div>
-                <div class="loading-meta flex justify-between text-[10px] md:text-xs text-slate-500 font-black">
-                    <span id="loading-progress-label">0 / 10 個檔案</span>
-                    <span id="loading-progress-percent">0%</span>
+                <div
+                    id="loading-progress-track"
+                    class="loading-track h-3 overflow-hidden rounded-full border border-white/10 bg-slate-900"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="0"
+                >
+                    <div id="loading-progress-bar" class="loading-progress-fill h-full w-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
                 </div>
             </div>
+
+            <div class="loading-stats mt-4 grid grid-cols-2 gap-3">
+                <div class="loading-stat rounded-2xl border border-white/10 bg-white/5 p-3 text-center">
+                    <div class="loading-stat-label text-[10px] font-black uppercase tracking-wider text-slate-500">檔案進度</div>
+                    <div class="loading-stat-value mt-1 font-black text-white">
+                        <span id="loading-files-completed">0</span>
+                        <span class="text-slate-500"> / </span>
+                        <span id="loading-files-total">0</span>
+                    </div>
+                </div>
+                <div class="loading-stat rounded-2xl border border-white/10 bg-white/5 p-3 text-center">
+                    <div class="loading-stat-label text-[10px] font-black uppercase tracking-wider text-slate-500">已讀取題目</div>
+                    <div id="loading-question-count" class="loading-stat-value loading-question-value mt-1 font-black text-amber-300">0 題</div>
+                </div>
+            </div>
+
+            <p class="loading-note mt-4 text-center text-[10px] leading-relaxed text-slate-600">
+                即使已有本機快取，也會等候全部線上題庫同步完成後才進入頁面。
+            </p>
         </div>
     </div>
 
-    <!-- Tailwind／Confetti 在此處載入（不加 defer）：
-         此時瀏覽器已經畫出上面的載入覆蓋層（純 CSS，蓋滿全螢幕），
-         接下來載入 Tailwind 會照常同步執行、順便掃描已存在的 DOM，
-         其餘頁面內容則等它執行完才繼續解析，使用者只會看到覆蓋層，不會看到中間過程 -->
+    <!-- 先顯示純 CSS 載入畫面，再載入外部介面與特效資源。 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -552,225 +714,342 @@
         let currentCombo = 0;
         let maxCombo = 0;
 
-        // ===== 載入覆蓋層控制（顯示/隱藏 + 進度更新）=====
-        function showLoadingOverlay() {
-            const overlay = document.getElementById('loading-overlay');
-            if (!overlay) return;
-            overlay.style.display = 'flex';
-            requestAnimationFrame(() => { overlay.style.opacity = '1'; });
-            overlay.style.pointerEvents = 'auto';
+        const QUIZ_CACHE_KEY = 'law_quiz_v2026_dynamic_cache';
+        let loadingHideTimer = null;
+
+        function formatCount(value) {
+            return Number(value || 0).toLocaleString('zh-TW');
         }
 
-        function hideLoadingOverlay(delay = 300) {
-            const overlay = document.getElementById('loading-overlay');
-            if (!overlay) return;
-            setTimeout(() => {
-                overlay.style.opacity = '0';
-                overlay.style.pointerEvents = 'none';
-                setTimeout(() => { overlay.style.display = 'none'; }, 500);
-            }, delay);
+        function showLoadingScreen() {
+            clearTimeout(loadingHideTimer);
+            const screen = document.getElementById('loading-screen');
+            const spinner = document.getElementById('loading-spinner');
+            document.body.style.overflow = 'hidden';
+            screen.classList.remove('loading-hidden');
+            screen.setAttribute('aria-hidden', 'false');
+            spinner.className = 'loading-spinner';
+            spinner.innerHTML = '';
         }
 
-        function updateLoadingProgress(completed, total, statusMsg) {
-            const bar = document.getElementById('loading-progress-bar');
-            const label = document.getElementById('loading-progress-label');
-            const percent = document.getElementById('loading-progress-percent');
-            const statusText = document.getElementById('loading-status-text');
-            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-            if (bar) bar.style.width = pct + '%';
-            if (label) label.innerText = `${completed} / ${total} 個檔案`;
-            if (percent) percent.innerText = pct + '%';
-            if (statusText && statusMsg) statusText.innerText = statusMsg;
+        function updateLoadingProgress({
+            percent,
+            message,
+            stage,
+            completed,
+            total,
+            questions
+        }) {
+            const safePercent = Math.max(0, Math.min(100, Math.round(percent || 0)));
+            const progressBar = document.getElementById('loading-progress-bar');
+            const progressTrack = document.getElementById('loading-progress-track');
+
+            progressBar.style.width = `${safePercent}%`;
+            progressTrack.setAttribute('aria-valuenow', String(safePercent));
+            document.getElementById('loading-progress-percent').innerText = `${safePercent}%`;
+
+            if (message !== undefined) {
+                document.getElementById('loading-message').innerText = message;
+            }
+            if (stage !== undefined) {
+                document.getElementById('loading-stage').innerText = stage;
+            }
+            if (completed !== undefined) {
+                document.getElementById('loading-files-completed').innerText = completed;
+            }
+            if (total !== undefined) {
+                document.getElementById('loading-files-total').innerText = total;
+            }
+            if (questions !== undefined) {
+                document.getElementById('loading-question-count').innerText = `${formatCount(questions)} 題`;
+            }
         }
 
-        // 【優化 1】頁面一開啟就先讀本地快取，讓使用者「秒開」看到上次的題庫，
-        // 不必乾等網路請求全部跑完才看得到畫面（Stale-While-Revalidate 概念）
+        function finishLoading(message, success = true) {
+            updateLoadingProgress({
+                percent: 100,
+                message,
+                stage: success ? '載入完成' : '載入結束',
+                questions: quizData.length
+            });
+
+            const spinner = document.getElementById('loading-spinner');
+            spinner.className = success
+                ? 'text-emerald-400'
+                : 'text-amber-400';
+            spinner.innerHTML = success
+                ? '<i class="fa-solid fa-circle-check"></i>'
+                : '<i class="fa-solid fa-triangle-exclamation"></i>';
+
+            loadingHideTimer = setTimeout(() => {
+                const screen = document.getElementById('loading-screen');
+                screen.classList.add('loading-hidden');
+                screen.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }, success ? 650 : 1400);
+        }
+
+        function saveQuizCacheSafely(data) {
+            try {
+                localStorage.setItem(QUIZ_CACHE_KEY, JSON.stringify(data));
+                return true;
+            } catch (error) {
+                console.warn('題庫超過瀏覽器快取容量，已略過完整題庫快取。', error);
+                return false;
+            }
+        }
+
+        // 本機快取只用來預先準備資料；不會因此提前關閉載入畫面。
+        // 載入畫面必須等所有候選 JSON 完成下載、解析、合併與去重後才會關閉。
         function loadCachedQuizData() {
-            const cached = localStorage.getItem('law_quiz_v2026_dynamic_cache');
+            updateLoadingProgress({
+                percent: 4,
+                message: '正在檢查瀏覽器中的題庫快取……',
+                stage: '讀取本機快取'
+            });
+
+            let cached = null;
+            try {
+                cached = localStorage.getItem(QUIZ_CACHE_KEY);
+            } catch (error) {
+                console.warn('瀏覽器禁止讀取本機題庫快取', error);
+                return false;
+            }
             if (!cached) return false;
+
             try {
                 const parsed = JSON.parse(cached);
                 if (Array.isArray(parsed) && parsed.length > 0) {
                     quizData = parsed;
                     updateBankUI();
+                    updateLoadingProgress({
+                        percent: 10,
+                        message: `已讀取 ${formatCount(quizData.length)} 題本機快取，仍在載入全部線上題庫……`,
+                        stage: '快取預載完成',
+                        questions: quizData.length
+                    });
+
                     const statusIndicator = document.getElementById('status-indicator');
                     const statusText = document.getElementById('status-text');
-                    if (statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
-                    if (statusText) statusText.innerText = `已載入本地快取（${quizData.length} 題），背景同步最新中...`;
-                    updateLoadingProgress(10, 10, `已載入本地快取（${quizData.length} 題）`);
+                    if (statusIndicator) {
+                        statusIndicator.className = 'w-2.5 h-2.5 bg-indigo-400 rounded-full';
+                    }
+                    if (statusText) {
+                        statusText.innerText = `已預載本機快取（${formatCount(quizData.length)} 題），等待全部題庫同步`;
+                    }
                     return true;
                 }
-            } catch (e) {
-                console.warn('本地快取解析失敗', e);
+            } catch (error) {
+                console.warn('本機題庫快取解析失敗', error);
             }
             return false;
         }
 
-        // 【優化 8】全域同步時間上限：無論網路狀況多差，整體掃描保證在 30 秒內結束，
-        // 不會讓使用者無止盡等待
         const GLOBAL_SYNC_TIMEOUT_MS = 30000;
-        const PER_FILE_TIMEOUT_MS = 12000; // 單檔案逾時放寬到 12 秒，避免大檔案被錯殺，但仍受全域 30 秒節制
+        const PER_FILE_TIMEOUT_MS = 15000;
 
-        // 帶逾時保護的 fetch：可同時吃「單檔案逾時」與「全域倒數」兩種訊號，任一觸發就中止，
-        // 這樣即使單檔案還沒到自己的 12 秒上限，也會被全域 30 秒鐘的死線一起強制收斂
-        function fetchWithTimeout(url, timeoutMs = PER_FILE_TIMEOUT_MS, externalSignal = null) {
+        // 逾時計時涵蓋「下載回應內容 + JSON 解析」，避免只收到標頭後就失去保護。
+        function fetchJsonWithTimeout(
+            url,
+            timeoutMs = PER_FILE_TIMEOUT_MS,
+            externalSignal = null
+        ) {
             const controller = new AbortController();
-            const localTimer = setTimeout(() => controller.abort(), timeoutMs);
-            const onExternalAbort = () => controller.abort();
+            const timeout = setTimeout(() => controller.abort(), timeoutMs);
+            const abortFromExternal = () => controller.abort();
+
             if (externalSignal) {
-                if (externalSignal.aborted) controller.abort();
-                else externalSignal.addEventListener('abort', onExternalAbort, { once: true });
+                if (externalSignal.aborted) {
+                    controller.abort();
+                } else {
+                    externalSignal.addEventListener(
+                        'abort',
+                        abortFromExternal,
+                        { once: true }
+                    );
+                }
             }
-            return fetch(url, { signal: controller.signal }).finally(() => {
-                clearTimeout(localTimer);
-                if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort);
-            });
+
+            return fetch(url, { signal: controller.signal })
+                .then(response => {
+                    if (!response.ok) return null;
+                    return response.json();
+                })
+                .finally(() => {
+                    clearTimeout(timeout);
+                    if (externalSignal) {
+                        externalSignal.removeEventListener(
+                            'abort',
+                            abortFromExternal
+                        );
+                    }
+                });
         }
 
-        // 單一候選檔案的讀取；無論成功、404、逾時或例外，都回傳 data 或 null，
-        // 絕不讓外層的 Promise 進入 rejected 狀態，方便統一計算進度
-        function fetchCandidate(fileName, ts, globalSignal) {
-            return fetchWithTimeout(`${fileName}?t=${ts}`, PER_FILE_TIMEOUT_MS, globalSignal)
-                .then(res => (res.ok ? res.json() : null))
-                .catch(() => null);
-        }
-
-        // 核心功能：平行掃描 GitHub 同儲存庫目錄下的所有可能 JSON 檔名
-        // 【優化 3】改用平行 fetch 取代原本逐一 await 的序列寫法，
-        // 10 個候選檔名不再互相排隊等待，載入時間大幅縮短（理論上等同最慢那一個檔案的時間，而非總和）
-        // 【優化 6】每個檔案各自完成時即時回報進度，讓載入覆蓋層的進度條真實反映掃描狀況，
-        // 而非一路空白直到全部檔案都跑完才跳到 100%
-        // 【優化 8】搭配 30 秒全域死線：不論網路多慢，整個同步流程保證 30 秒內結束並用現有資料收尾
+        // 平行掃描 GitHub 同儲存庫目錄下的題庫檔案，並即時更新進度。
         async function scanAndLoadGitHubJsonFiles() {
+            showLoadingScreen();
             const statusIndicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
             const hadCache = quizData.length > 0;
 
             if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping";
-            if(statusText) statusText.innerText = hadCache ? "背景同步最新題庫中..." : "正在連線讀取 GitHub JSON 檔案...";
+            if(statusText) statusText.innerText = hadCache
+                ? '本機快取已預載，正在同步全部線上題庫……'
+                : '正在連線讀取 GitHub JSON 檔案……';
 
-            // 支援常見的所有題庫 JSON 檔名命名
             const jsonCandidates = [
-                'law_bank_demo.json', 'law_bank.json', 'law_bank_complete.json', 
-                'law_bank_part1.json', 'law_bank_part2.json', 'law_bank_part3.json', 'law_bank_part4.json',
+                'law_bank_part_all.json',
+                'law_bank_demo.json', 'law_bank.json', 'law_bank_complete.json',
+                'law_bank_part1.json', 'law_bank_part2.json', 'law_bank_part3.json',
+                'law_bank_part4.json', 'law_bank_part5.json',
                 'questions.json', 'data.json', 'bank.json'
             ];
 
-            const ts = Date.now(); // 加入時間戳參數防瀏覽器 HTTP 快取
-            const total = jsonCandidates.length;
-            let completed = 0;
-
-            // 全域倒數計時器：30 秒後強制中止所有還沒回應的請求
+            const totalFiles = jsonCandidates.length;
+            let completedFiles = 0;
+            let discoveredQuestions = 0;
             const globalController = new AbortController();
-            const globalDeadlineTimer = setTimeout(() => globalController.abort(), GLOBAL_SYNC_TIMEOUT_MS);
-
-            // 首次進站（尚無快取）才需要即時更新覆蓋層進度條與倒數秒數；
-            // 若已有快取秒開畫面，覆蓋層已淡出，此時是安靜的背景同步，不再打擾使用者
-            let countdownInterval = null;
-            if (!hadCache) {
-                updateLoadingProgress(0, total, `掃描題庫檔案中 (0/${total})... 最多 30 秒內完成`);
-                const startedAt = Date.now();
-                countdownInterval = setInterval(() => {
-                    const remain = Math.max(0, Math.ceil((GLOBAL_SYNC_TIMEOUT_MS - (Date.now() - startedAt)) / 1000));
-                    updateLoadingProgress(completed, total, `掃描題庫檔案中 (${completed}/${total})... 剩餘 ${remain} 秒`);
-                }, 1000);
-            }
-
-            const results = await Promise.all(
-                jsonCandidates.map(fileName =>
-                    fetchCandidate(fileName, ts, globalController.signal).then(data => {
-                        completed++;
-                        if (!hadCache) updateLoadingProgress(completed, total, `掃描題庫檔案中 (${completed}/${total})...`);
-                        return data;
-                    })
-                )
+            const globalTimeout = setTimeout(
+                () => globalController.abort(),
+                GLOBAL_SYNC_TIMEOUT_MS
             );
+            document.getElementById('loading-files-total').innerText = totalFiles;
+            updateLoadingProgress({
+                percent: hadCache ? 12 : 7,
+                message: `準備平行檢查 ${totalFiles} 個可能的題庫檔案……`,
+                stage: '連線題庫',
+                completed: 0,
+                total: totalFiles,
+                questions: hadCache ? quizData.length : 0
+            });
 
-            clearTimeout(globalDeadlineTimer);
-            if (countdownInterval) clearInterval(countdownInterval);
+            const timestamp = Date.now();
+            const requests = jsonCandidates.map(async fileName => {
+                try {
+                    const data = await fetchJsonWithTimeout(
+                        `${fileName}?t=${timestamp}`,
+                        PER_FILE_TIMEOUT_MS,
+                        globalController.signal
+                    );
+                    if (!Array.isArray(data) || data.length === 0) return null;
 
+                    discoveredQuestions += data.length;
+                    console.log(
+                        `[自動載入成功] 檔案: ${fileName}，取得 ${data.length} 題`
+                    );
+                    return { fileName, data };
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.debug(`[略過題庫檔案] ${fileName}`, error);
+                    }
+                    return null;
+                } finally {
+                    completedFiles++;
+                    const requestProgress =
+                        (hadCache ? 12 : 7) +
+                        Math.round((completedFiles / totalFiles) * 68);
+                    updateLoadingProgress({
+                        percent: requestProgress,
+                        message: `已完成 ${completedFiles} / ${totalFiles} 個檔案，正在下載及解析題庫……`,
+                        stage: '下載與解析',
+                        completed: completedFiles,
+                        total: totalFiles,
+                        questions: discoveredQuestions || quizData.length
+                    });
+                }
+            });
+
+            const results = await Promise.allSettled(requests);
+            clearTimeout(globalTimeout);
             let mergedData = [];
             let loadedFilesCount = 0;
 
-            results.forEach((data, idx) => {
-                if (Array.isArray(data) && data.length > 0) {
-                    mergedData = mergedData.concat(data);
+            results.forEach(result => {
+                if (
+                    result.status === 'fulfilled' &&
+                    result.value &&
+                    Array.isArray(result.value.data)
+                ) {
+                    mergedData = mergedData.concat(result.value.data);
                     loadedFilesCount++;
-                    console.log(`[自動載入成功] 檔案: ${jsonCandidates[idx]}，取得 ${data.length} 題`);
                 }
-                // data 為 null（檔案不存在/404、逾時或網路錯誤）都順暢忽略
             });
 
             if (mergedData.length > 0) {
-                // 【優化 4】依 id（若無則以題目文字）去除重複題目，避免多檔案內容重疊造成題庫膨脹
+                updateLoadingProgress({
+                    percent: 82,
+                    message: `已取得 ${formatCount(mergedData.length)} 筆資料，正在移除重複題目……`,
+                    stage: '合併與去重',
+                    questions: mergedData.length
+                });
+
                 const seen = new Set();
                 const deduped = [];
-                mergedData.forEach(q => {
-                    const key = q.id || q.question;
-                    if (!seen.has(key)) {
+                mergedData.forEach(question => {
+                    const key = question.id || question.question;
+                    if (key && !seen.has(key)) {
                         seen.add(key);
-                        deduped.push(q);
+                        deduped.push(question);
                     }
                 });
 
                 quizData = deduped;
-                localStorage.setItem('law_quiz_v2026_dynamic_cache', JSON.stringify(quizData));
+                updateLoadingProgress({
+                    percent: 91,
+                    message: `去重完成，共 ${formatCount(quizData.length)} 題，正在建立練習介面……`,
+                    stage: '建立題庫索引',
+                    questions: quizData.length
+                });
+
+                const cacheSaved = saveQuizCacheSafely(quizData);
                 
                 if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse";
-                if(statusText) statusText.innerText = `成功從 GitHub 讀取 ${loadedFilesCount} 個 JSON 檔（共 ${quizData.length} 題）！`;
-
-                if (!hadCache) {
-                    updateLoadingProgress(total, total, `載入完成！共 ${quizData.length} 題`);
-                    hideLoadingOverlay(400);
+                if(statusText) {
+                    statusText.innerText =
+                        `成功讀取 ${loadedFilesCount} 個 JSON 檔，共 ${formatCount(quizData.length)} 題`;
                 }
-
+                
                 updateBankUI();
+                finishLoading(
+                    cacheSaved
+                        ? `題庫載入完成！共 ${formatCount(quizData.length)} 題。`
+                        : `題庫載入完成！共 ${formatCount(quizData.length)} 題；因容量較大，未寫入本機快取。`
+                );
                 return;
             }
 
-            // 若線上連線失敗，且先前沒有快取可用，才嘗試讀取瀏覽器備份或顯示錯誤
-            if (!hadCache) {
-                const cached = localStorage.getItem('law_quiz_v2026_dynamic_cache');
-                if (cached) {
-                    try {
-                        quizData = JSON.parse(cached);
-                        if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
-                        if(statusText) statusText.innerText = "已載入本地備份題庫";
-                        updateLoadingProgress(total, total, `已載入本地備份題庫（${quizData.length} 題）`);
-                    } catch(e) {
-                        quizData = [];
-                        updateLoadingProgress(total, total, "題庫讀取失敗");
-                    }
-                } else {
-                    if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
-                    if(statusText) statusText.innerText = "未檢測到 GitHub JSON 檔，請先上傳 JSON！";
-                    updateLoadingProgress(total, total, "尚未找到題庫，請至「題庫」頁面匯入");
-                }
-                // 無論成功、讀取備份或完全失敗，掃描已結束，覆蓋層都該淡出讓使用者能操作頁面
-                hideLoadingOverlay(600);
-            } else {
+            if (hadCache) {
                 if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-indigo-400 rounded-full";
-                if(statusText) statusText.innerText = `目前使用本地快取題庫（${quizData.length} 題），線上暫無更新`;
+                if(statusText) {
+                    statusText.innerText =
+                        `線上同步未完成，目前使用本機快取（${formatCount(quizData.length)} 題）`;
+                }
+                updateBankUI();
+                finishLoading(
+                    `線上題庫暫時無法更新，已改用 ${formatCount(quizData.length)} 題本機快取。`,
+                    false
+                );
+            } else {
+                if(statusIndicator) statusIndicator.className = "w-2.5 h-2.5 bg-rose-500 rounded-full";
+                if(statusText) statusText.innerText = "未檢測到 GitHub JSON 檔，請先上傳 JSON！";
+                quizData = [];
+                updateBankUI();
+                finishLoading(
+                    '沒有找到可用的題庫檔案，請確認 JSON 檔名與上傳位置。',
+                    false
+                );
             }
-            updateBankUI();
         }
 
         function updateBankUI() {
-            document.getElementById('header-bank-count').innerText = quizData.length;
-            document.getElementById('bank-total-count').innerText = quizData.length;
+            document.getElementById('header-bank-count').innerText = formatCount(quizData.length);
+            document.getElementById('bank-total-count').innerText = formatCount(quizData.length);
             renderBankList();
         }
 
-        // 【優化 5】原本用 window.onload 會等到圖片、字型、外部腳本全部載入完畢才開始抓題庫，
-        // 造成不必要的延遲。由於此 <script> 已在 </body> 前，DOM 早已就緒，
-        // 這裡改成：先同步讀本地快取「秒開」畫面，接著立刻背景送出網路請求，兩者互不阻塞。
-        // 【優化 7】進入網頁時先顯示載入覆蓋層並展示進度；若本地已有快取則快速確認後淡出，
-        // 沒有快取則保留覆蓋層、即時顯示 10 個候選檔案的真實掃描進度，直到題庫就緒才淡出。
-        showLoadingOverlay();
-        const hasCacheOnEntry = loadCachedQuizData();
-        if (hasCacheOnEntry) {
-            hideLoadingOverlay(500);
-        }
+        // 此 script 位於 body 尾端，DOM 已可使用；先讀快取，再立即背景同步。
+        loadCachedQuizData();
         scanAndLoadGitHubJsonFiles();
 
         // --- 視差粒子與光暈特效初始化 ---
@@ -1214,8 +1493,10 @@
         function renderBankList() {
             const container = document.getElementById('bank-list-container');
             let html = '';
+            const previewLimit = 100;
+            const previewData = quizData.slice(0, previewLimit);
 
-            quizData.forEach((q, idx) => {
+            previewData.forEach((q, idx) => {
                 html += `
                     <div class="p-3 bg-slate-900/60 border border-white/10 rounded-2xl flex justify-between items-start space-x-3 text-xs">
                         <div class="space-y-1 flex-1">
@@ -1232,6 +1513,15 @@
                     </div>
                 `;
             });
+
+            if (quizData.length > previewLimit) {
+                html = `
+                    <div class="sticky top-0 z-10 rounded-2xl border border-amber-500/30 bg-amber-950/90 p-3 text-center text-xs text-amber-200 backdrop-blur-xl">
+                        為維持大型題庫操作效能，目前僅預覽前 ${previewLimit} 題；
+                        刷題抽選仍會使用全部 ${formatCount(quizData.length)} 題。
+                    </div>
+                ` + html;
+            }
 
             container.innerHTML = html || '<div class="text-center py-6 text-slate-500 text-xs">目前題庫完全為空，請確認已將 JSON 檔上傳至 GitHub 並點選重新連線！</div>';
         }
@@ -1270,7 +1560,7 @@
         }
 
         function saveQuizData() {
-            localStorage.setItem('law_quiz_v2026_dynamic_cache', JSON.stringify(quizData));
+            saveQuizCacheSafely(quizData);
         }
 
         function exportQuestions() {
@@ -1312,4 +1602,3 @@
     </script>
 </body>
 </html>
-
